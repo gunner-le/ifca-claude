@@ -51,7 +51,9 @@ for /d %%D in ("%ROOT%\*") do (
 )
 echo.
 set "N="
-set /p "N= Nhap so (0 = chi mo kien thuc): "
+echo   0. (khong source) - patch data / query tren server / chua clone source
+echo.
+set /p "N= Nhap so: "
 if "%N%"=="0" (
     set "DIRS="
     goto :run

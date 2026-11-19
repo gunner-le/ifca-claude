@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Edit(//E:/IFCA Software/SourceCode/**)",
+      "Write(//E:/IFCA Software/SourceCode/**)"
+    ]
+  }
+}

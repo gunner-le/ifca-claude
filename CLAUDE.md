@@ -15,7 +15,8 @@
 
 ## An toàn khi chạy lệnh (Claude Code)
 
-- **KHÔNG BAO GIỜ chạy UPDATE/DELETE/INSERT/ALTER/EXEC proc ghi dữ liệu trên DB Live.** Chỉ chạy SELECT trên DB local/Train/clone khi Gunner cho phép. Script patch: soạn ra file, Gunner tự chạy.
+- **Không tự chạy lệnh ghi dữ liệu (UPDATE/DELETE/INSERT/ALTER/CREATE/DROP/EXEC proc ghi) ở BẤT KỲ DB nào** — patch soạn ra, Gunner tự chạy trong SSMS.
+- SELECT: chỉ trên DB **trên máy Gunner** (kể cả DB clone tên `_Live`), luôn hỏi trước; **không bao giờ kết nối server từ xa** (server client/công ty). Chi tiết: mục "SQL trên máy Gunner".
 - Không `tf checkin`, không xoá file trong source. Sửa file chuẩn (standard) phải comment JiraID.
 - Trước khi sửa 1 file, xác nhận đúng client/đúng thư mục source (tránh sửa nhầm bản client khác).
 
@@ -53,11 +54,6 @@
 - Khi ticket "nặng" xong: (1) cập nhật index; (2) viết file chi tiết (bối cảnh, root cause, fix, test); (3) trích kiến thức dùng chung sang domain reference (kể cả menu/màn hình/bảng đã xác nhận); (4) đưa note Jira tiếng Anh **2 bản Tech + Non-tech**, mỗi bản 1 đoạn liền (Root Cause / Fix / Status) — chỉ viết khi root cause/fix đã test đúng.
 - Lỗi setup môi trường ghi vào `docs/ENV-setup-checklist.md`.
 
-## Môi trường
-
-- VS 2022 (.NET Framework 4.8 WebForms), dnSpy/ILSpy, SSMS, SQL Server (Docker SQL 2025 local port 1434), TFS, Report Builder.
-- Collation DB IFCA `Chinese_PRC_CI_AS` ≠ tempdb → thêm `COLLATE DATABASE_DEFAULT` cho join chuỗi với bảng tạm.
-
 ## Tài liệu trong `docs/`
 
 | File | Nội dung |
@@ -72,7 +68,13 @@
 | `docs/wcf-workflow-service-troubleshooting.md` | Lỗi WCF Workflow 404/405 |
 | `docs/ENV-setup-checklist.md` | Dựng môi trường / server mới |
 | `docs/memory/*.md` | Ghi nhớ tích luỹ: learnings (gotcha), architecture, framework reference, trạng thái ticket |
-| `docs/tickets/*.md` | File chi tiết từng ticket |
+| `docs/tickets/*.md` | File chi tiết từng ticket (13 ticket mở/phức tạp chép nguyên văn; ticket đã đóng khác: tóm tắt trong `jira-context.md`, bản gốc ở claude.ai Project) |
+| `tools/sql-setup.md` | Cài sqlcmd, login chỉ đọc `claude_ro` |
+| `.claude/commands/*.md` | Lệnh tắt — gõ `/huong-dan` để xem hết |
+| `tools/queries/` | Thư viện query chẩn đoán (chỉ SELECT) |
+| `docs/de-xuat-sua-tan-goc.md` | Lỗi lặp lại nên sửa tận gốc + draft gửi Stanley |
+| `screens/` | Gunner lưu screenshot Jira vào đây |
+| `ifca.bat` | Mở Claude Code: kiến thức + source client |
 
 ## Môi trường & công cụ của Gunner
 - Visual Studio 2022 (không dùng VS 2026 cho WebForms .NET 4.8); dnSpy/ILSpy khi DLL server khác TFS source.
@@ -81,6 +83,7 @@
 - Jira: supportnet.ifcasoftware.com (account "IFCAVN RND Hoang Le Tien" = Gunner). TFS DB script chia folder New Table / Table Change / Views / Update Script / Stored Procedures / Functions — 1 file = 1 object.
 - Đồng nghiệp: Stanley (lead/kiến trúc, quyết policy, escalate), Julia (consultant/tester TIMATCH, FPARK, SWZECON, CMSD), Heah Pei Juin (LKHS, ASPENPG), Valerie (LKHS), Edward (HKB, SWZECON, SWIBRACO), WP Lim (JBTNPSB), Zac Ng (dev ASPENPG), anh Nguyễn Quốc Việt (lead VN, hỏi nghiệp vụ), James Dinh (dev, GRSUMMIT-176).
 - Gunner nghe/nói tiếng Anh yếu: tin nhắn/talking point cho Stanley phải ngắn, chỉ hỏi, bám đúng điểm Stanley vừa nêu.
+- Collation DB IFCA `Chinese_PRC_CI_AS` ≠ tempdb → thêm `COLLATE DATABASE_DEFAULT` cho join chuỗi với bảng tạm.
 - Ưu tiên ổn định & đúng dữ liệu hơn tối đa hiệu năng; tối ưu SP chọn cách an toàn.
 - Code snippet: không dùng `++`/`--` (hỏng ký tự khi copy) — dùng `+= 1`/`-= 1`.
 - `docs/jira-context.md` PHẦN B = ticket đang dở chỉ có trong chat cũ; PHẦN C = lịch sử 04–09/2026 (TIMATCH, FPARK, SWZECON, JBTNPSB, NAIMCAP, ASPENPG...) — đọc khi Gunner nhắc ticket không có trong index. Ticket chỉ ghi "chỉ còn tiêu đề" thì nói rõ không có chi tiết và hỏi Gunner.
@@ -135,3 +138,67 @@ Các nhánh khác (`NET4.0`, `NET4.0_VN`, `NET3.5_VN`, `IFCA.NET 4.0_VN`, `IFCA.
 - Package nâng version (PLBPG-79): `_Package (Edge)/Versioning/Version XX` trên TFS.
 - So bản client với chuẩn: client Train → `Dev\BRANCHES\NET4.0_REL`, client Live → `Rel\IFCA.NET 4.0` (LKHS dùng 2 nhánh _SG). Bug có ở bản chuẩn → bug sản phẩm, Gunner tự commit TFS vào đúng nhánh Train/Live.
 - Mở kèm khi cần so: `ifca.bat SWZECON_Live "SourceCode\Rel\IFCA.NET 4.0"` hoặc trong phiên `/add-dir "E:\IFCA Software\SourceCode\Rel\IFCA.NET 4.0"`.
+
+## Sửa file có sẵn (code / SQL) — KHÔNG để Gunner phải copy đè cả file
+Thư mục `E:\IFCA Software\<client>` và `SourceCode` là BẢN SAO trên máy Gunner, có thể cũ hơn server/TFS. Gunner KHÔNG copy đè cả file lên server/TFS (sợ mất phần sửa của người khác) — chỉ áp phần fix có note Jira.
+1. Trước khi sửa 1 file có sẵn: nhắc Gunner lấy bản mới nhất của file đó từ server (Live/Train) hoặc TFS về local, nếu chưa chắc local đang mới.
+2. Khi sửa file local: chỉ thêm/sửa đúng chỗ cần; bọc bằng `// <JiraID> start` / `// <JiraID> end` (C#/JS), `<%-- <JiraID> --%>` (aspx), `-- <JiraID>` (SQL); dòng cũ comment lại, không xoá. Không reformat, không đổi chỗ khác trong file (giữ CRLF, encoding gốc).
+3. Sau khi Gunner test OK: xuất **danh sách thay đổi theo dòng mốc** cho từng file — đường dẫn file, dòng mốc để tìm, thao tác (thêm sau / thêm trước / thay), đoạn code sạch để paste (không dấu +/- diff). Gunner tự áp lên server và TFS.
+4. SP / View có sẵn: chỉ đưa các đoạn thay đổi (find → replace / insert, có comment Jira, giữ dòng cũ dạng comment); không đưa nguyên ALTER để chạy đè. Object mới hoàn toàn thì gửi nguyên file.
+5. Không bao giờ đề xuất copy nguyên file có sẵn đè lên server/TFS. File MỚI do ticket tạo ra thì được gửi/copy nguyên file.
+6. Khi Gunner hỏi "đã sửa những gì", liệt kê lại từ chính file local (tìm theo comment JiraID), không dựa trí nhớ.
+
+## SQL trên máy Gunner (sqlcmd) — chỉ SELECT, luôn hỏi trước
+Hướng dẫn cài/đăng nhập: `tools/sql-setup.md`. Kết nối (Gunner điền):
+| Client | DB | Lệnh kết nối | Ngày clone/restore |
+|---|---|---|---|
+| (vd LKHS) | LKHS_Train | `sqlcmd -S <server> -E -d <DB>` hoặc `-S localhost,1434 -U claude_ro -d <DB>` | (vd 2026-11-09) |
+| (chung) | IFCANetAudit_R2_8 | (như trên) | |
+- Ngày clone: khi điền bảng, chạy `tools/queries/09_clone_freshness.sql` để lấy. Nếu chứng từ/sự kiện đang điều tra MỚI HƠN ngày clone, hoặc Live có thể đã đổi data sau ngày clone (allocation, post bill...) → nói rõ với Gunner trước khi kết luận theo data local (bài học NAIMCAP-953).
+Quy tắc:
+- CHỈ chạy SELECT (và sp_helptext / OBJECT_DEFINITION / INFORMATION_SCHEMA). KHÔNG BAO GIỜ chạy UPDATE/INSERT/DELETE/ALTER/CREATE/DROP/EXEC SP ghi dữ liệu — patch đưa cho Gunner tự chạy trong SSMS.
+- Ranh giới là SERVER, không phải tên DB:
+  - ĐƯỢC đọc: mọi DB trên MÁY GUNNER — `-S localhost`, `.`, `(local)`, `127.0.0.1`, `localhost\<instance>`, Docker `localhost,1434` — kể cả DB clone về mang tên `_Live` (vd `LKHS_Live`, `SWZECON_Live`).
+  - KHÔNG BAO GIỜ kết nối: bất kỳ server nào khác (server client, server công ty, IP/hostname từ xa, VPN), dù DB tên Train hay Live. Nếu Gunner nhờ chạy trên server từ xa → đưa query để Gunner tự chạy.
+- Tìm DB của client: đọc `<connectionStrings>` (và appSettings liên quan DB) trong `web.config` của thư mục client đang add (`E:\IFCA Software\<client>\web.config` hoặc thư mục web con). Chỉ lấy **Data Source** và **Initial Catalog/Database**.
+  - Data Source là máy Gunner (localhost / . / (local) / 127.0.0.1 / tên máy Gunner / `localhost,1434`) → được dùng, ghi vào bảng kết nối ở trên.
+  - Data Source là server khác (IP, hostname server client/công ty) → KHÔNG dùng, báo Gunner "web.config này trỏ server từ xa" và hỏi DB clone trên máy tên gì.
+  - KHÔNG chép User ID / Password từ web.config vào docs, câu trả lời hay lệnh. Chạy sqlcmd bằng Windows auth `-E` hoặc login `claude_ro` (mật khẩu qua biến môi trường SQLCMDPASSWORD), không dùng tài khoản sa trong web.config.
+- Trước mỗi lần chạy: nói 1 câu query để kiểm tra gì. sqlcmd KHÔNG nằm trong danh sách allow → Gunner luôn được hỏi.
+- Tiết kiệm token: chỉ chọn cột cần, luôn có `TOP` (mặc định 50) hoặc GROUP BY/COUNT trước khi lấy chi tiết; không `SELECT *` trên bảng rộng (AR_Trx, CB_Receipt...) trừ khi lọc 1-2 dòng. Định dạng gọn: `sqlcmd ... -W -s "|" -Q "SET NOCOUNT ON; <query>"`.
+- Tên DB audit luôn `IFCANetAudit_R2_8`. Compat level thấp (vd 100) không có STRING_AGG.
+
+## Lệnh tắt (slash command) — trong `.claude/commands/`
+`/huong-dan` (tra cứu mọi lệnh) · `/ticket-moi <Jira>` · `/so-tfs <file>` · `/tam-dung <Jira>` · `/xuat-thay-doi <Jira>` · `/dong-ticket <Jira>` · `/bao-cao-tuan`
+Thư mục `SourceCode` (TFS chuẩn) bị cấm sửa trong `.claude/settings.json` — chỉ đọc để so sánh.
+Screenshot: lưu vào `screens\` rồi gõ đường dẫn.
+
+## Kiểm tra nhanh khi nhận bug (trước khi đào sâu)
+1. **Lệch deploy?** Rất nhiều bug là server ≠ TFS (SWZECON-84, SWIBRACO-730/698, LKHS-322, FPARK-197, CMSD). Nghi ngờ code/config → `/so-tfs <file>` sớm.
+2. **Lỗi đã biết?** Đối chiếu `docs/de-xuat-sua-tan-goc.md`: Tax Adj Journal không có GL, JS đọc cột grid ẩn, Bill Item Inactive, trigger PREVENT_DUP_INSERT, sale Return lọt letter.
+3. **Màn hình → bảng thật:** `tools/queries/03_screen_to_tables.sql`; xem định nghĩa view đọc trước khi suy luận dữ liệu.
+4. Gặp nhóm lỗi trong `de-xuat-sua-tan-goc.md` lần nữa → xử lý ticket, rồi nhắc Gunner mục đề xuất (thêm ticket vào danh sách đó khi `/dong-ticket`).
+
+## Chưa có dữ liệu thật thì chưa kết luận
+- Mọi kết luận root cause phải dựa trên code thật + data thật (ưu tiên data CHƯA bị patch). Ghi rõ đâu là "đã xác nhận", đâu là "giả thuyết".
+- Các lần sai trước đây đều do kết luận sớm: SWCHENGLING-67 (đổi `>` thành `>=` sai → revert ở 79), NAIMCAP-972 (sửa nhầm master view thay vì sub view), GRSUMMIT-204 (patch ngược dấu vì không xem view), JBTNPSB-25 (đào config quá lâu thay vì decompile).
+- Đọc được nhiều file không có nghĩa là đúng: trước khi đề xuất fix, nêu 1 cách kiểm chứng (query / bước test) và chờ Gunner xác nhận.
+
+## Thư viện query: `tools/queries/` (xem README trong đó)
+Dùng file có sẵn thay vì viết lại (đúng tên cột, đỡ token): audit trace, đếm audit theo khung giờ, màn hình→bảng, so config Sys_ 2 DB, tìm cột trong object, trigger trên bảng, SysCode, Sys_Report, độ mới DB clone. Query mới dùng lại được → thêm vào đây khi đóng ticket.
+
+## Debug: Gunner dùng Visual Studio 2022 (File > Open Web Site), KHÔNG dùng VS Code
+- Source là ASP.NET **Web Site project** (biên dịch lúc chạy, không có .csproj/.sln build bằng lệnh). Đừng đề xuất VS Code, `dotnet build`, `msbuild` cho web.
+- VS và Claude Code phải trỏ CÙNG thư mục `E:\IFCA Software\<client>`. Nếu kết quả debug không khớp với file vừa sửa → hỏi Gunner VS đang mở thư mục nào.
+- Sau khi sửa 1 file: nhắc Gunner chọn Yes khi VS hỏi reload, và không để thay đổi chưa lưu trong VS trên cùng file (VS lưu sẽ đè mất phần Claude vừa sửa).
+- Sửa `App_Code` → cả site biên dịch lại; 1 file lỗi có thể làm hỏng cả thư mục trang (CMSD-40). Giữ cú pháp sạch, đủ `using`, `#region/#endregion` cân bằng.
+- Claude không gắn được debugger. Khi cần debug: chỉ rõ breakpoint (file + dòng mốc + biến/biểu thức cần xem trong Watch/Immediate), Gunner F5 rồi dán giá trị/stack trace. DLL không có source/PDB → dnSpy/ILSpy (Gunner làm), Claude phân tích code decompile được dán vào.
+
+## Phiên KHÔNG có source (ifca.bat chọn 0) — patch data / làm trực tiếp trên server
+- Dùng cho: ticket patch data, ticket chỉ cần query, hoặc client chưa clone source về máy.
+- Không tìm source trên máy. Cần code → nhờ Gunner copy đúng file (aspx.cs, SP, view...) từ server vào `work\<JiraID>\` rồi đọc ở đó; hoặc Gunner dán vào. Coi đó là bản LIVE của client (theo quy tắc mặc định).
+- SQL: đưa câu SELECT để Gunner tự chạy trên server (SSMS) — KHÔNG kết nối server từ xa. Kết quả Gunner dán vào. Ưu tiên query có sẵn trong `tools/queries/`.
+- Patch: theo quy tắc patch (1 UPDATE / record, comment giá trị cũ, SELECT kiểm tra trước, sau CB patch nhắc `CBUpdateAccountBalance`...). Gunner tự chạy.
+- Fix code: đưa hướng dẫn sửa theo dòng mốc (như bên chat), vì không có file local để sửa. Nếu Gunner đã copy file vào `work\<JiraID>\` thì có thể sửa bản đó để Gunner xem, nhưng vẫn phải xuất danh sách thay đổi theo dòng mốc để áp lên server/TFS.
+- `work\` và `screens\` không commit git (`.gitignore`) — có thể chứa dữ liệu client.
+
