@@ -185,7 +185,7 @@
 - Fix: DocumentDate `FldRange` 0→2 + `FldNeed=Y`, TransactionDate Inactive (theo mẫu EN291). Bug Standard — TIMATCH cùng config, hỏi Stanley. Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
 - Ngoài phạm vi: Aging Summary by Trx Date ra Owing 1,820 (lẽ ra 180) → đã làm ở LKHS-337; EN361 trùng 5 dòng filter TransactionDate.
 
-### LKHS-337 — PM Debtor Aging Summary by Trx Date: Owing sai (FIXED Train 19/11, chờ Live + TFS SG)
+### LKHS-337 — PM Debtor Aging Summary by Trx Date: Owing sai (FIXED Train 19/11, TFS Dev SG CS 99594, chờ Live + TFS Rel SG)
 - EN292 `PM_DebtorAgingSumByTrxDate`, cùng SP `PMDebtorAgingDetail`; data/criteria đúng. RDL nhánh SG: 3 ô Owing `Sum(Age1..7 - UnallocedAmt)` mà UnallocedAmt âm → 1,000 − (−820) = 1,820.
 - Bản Doc Date (SG) và bản chuẩn Malaysia đã dùng `+` → fix Malaysia chưa port sang SG. Fix: đổi 9 chỗ `-`→`+`, không đè file Malaysia. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
 

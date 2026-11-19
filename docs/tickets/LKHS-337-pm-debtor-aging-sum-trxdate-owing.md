@@ -56,7 +56,7 @@ Sau sửa: 0 chỗ `-`, 9 chỗ `+`, chỉ 9 dòng thay đổi, giữ UTF-8 BOM 
 ## Còn mở
 
 - Áp Live LKHS: tải RDL đang deploy trên Live về kiểm tra (có thể khác Train), đổi đúng 9 chỗ, upload.
-- TFS: Gunner Get Latest file ở 2 nhánh SG xác nhận vẫn còn `-` (bản copy trên máy có thể cũ), rồi đổi 9 chỗ ở cả `NET4.0_SG` và `IFCA.NET 4.0_SG`.
+- TFS: **Dev `NET4.0_SG` đã check-in — Changeset 99594** (Gunner, 19/11). Còn Rel `IFCA.NET 4.0_SG` (Get Latest, đổi 9 chỗ, check-in).
 - (Tuỳ chọn) Báo Stanley: snapshot RDL của vài client Malaysia trong TFS vẫn còn công thức cũ.
 
 ## Bài học

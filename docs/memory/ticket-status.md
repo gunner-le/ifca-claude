@@ -55,7 +55,7 @@
 - Còn lại: xác nhận script 8 case Train đã chạy; Valerie/Stanley retest UI; deploy Live; có port sang HQ `CBRealizedGainOrLoss` không (Stanley: class SG tách riêng có chủ đích, có lẽ chỉ SG).
 
 ### LKHS-337 — PM Debtor Aging Summary by Trx Date Owing sai (FIXED Train 19/11, test OK)
-- RDL `PM_DebtorAgingSumByTrxDate` nhánh SG: Owing trừ UnallocedAmt (âm) → đổi 9 chỗ `- Fields!UnallocedAmt.Value` → `+`. Còn: áp Live (tải RDL Live về kiểm trước), Get Latest + sửa 2 nhánh TFS SG. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
+- RDL `PM_DebtorAgingSumByTrxDate` nhánh SG: Owing trừ UnallocedAmt (âm) → đổi 9 chỗ `- Fields!UnallocedAmt.Value` → `+`. TFS Dev `NET4.0_SG` = Changeset 99594. Còn: áp Live (tải RDL Live về kiểm trước), TFS Rel `IFCA.NET 4.0_SG`. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
 
 ### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (FIXED Train 19/11, chờ consultant)
 - Fix config `Sys_ReportFilter` EN275 (DocumentDate FldRange 0→2 + FldNeed Y, TransactionDate Inactive). Còn: áp Live (SELECT kiểm trước), hỏi Stanley fix Standard (TIMATCH cùng config), đổi label "Doc" (tuỳ chọn). Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
