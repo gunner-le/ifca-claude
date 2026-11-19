@@ -1,4 +1,5 @@
 Đóng ticket: $ARGUMENTS (chỉ làm khi Gunner xác nhận đã test OK / có kết quả cuối)
+Nếu docs đã được ghi lúc "FIXED Train — chờ consultant" (rule bắt buộc trong CLAUDE.md): chỉ cập nhật trạng thái/ngày/changeset + phần còn thiếu, không viết lại.
 
 1. `docs/ticket-index.md`: thêm/cập nhật dòng (client, module/màn hình, mô tả ngắn + root cause + fix, trạng thái, ngày, file chi tiết).
 2. `docs/tickets/<TICKET>-<slug>.md`: bối cảnh, root cause, fix (diff trước/sau theo dòng mốc), kết quả test, rủi ro còn lại, bài học.
