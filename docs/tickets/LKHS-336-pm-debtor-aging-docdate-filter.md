@@ -69,7 +69,7 @@ WHERE theo `ReportNo + FldName` (không dùng ReportFilterID vì có thể khác
 - Áp Live LKHS (SELECT kiểm tra trước) sau khi consultant OK.
 - Bug Standard: hỏi Stanley có đưa fix vào Update Script cho mọi client không (TIMATCH cùng config). Nếu SP client khác khác bản LKHS thì cần so trước.
 - Label "Doc" (`CF_String` `Sys.ReportFilter_EN275_DocumentDate`) khó hiểu — có thể đổi thành "As At (Doc Date)" (chưa làm).
-- Ngoài phạm vi: Aging **Summary by Trx Date** ra Owing 1,820 (lẽ ra 180 — cộng thay vì trừ Unallocated); EN361 có 5 dòng filter `TransactionDate` trùng.
+- Ngoài phạm vi: Aging **Summary by Trx Date** ra Owing 1,820 (lẽ ra 180 — RDL trừ Unallocated âm) → đã xử lý ở LKHS-337; EN361 có 5 dòng filter `TransactionDate` trùng.
 
 ## Bài học
 

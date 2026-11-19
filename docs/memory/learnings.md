@@ -38,6 +38,8 @@
 - Chuỗi report/letter âm thầm loại record thiếu entity tuỳ chọn: chuỗi view lồng nhau mỗi tầng INNER JOIN thêm (Unit, e-Invoice, Property Area…) làm record thiếu entity biến mất ở tầng có INNER JOIN. Debug: trace SQL thật lúc Print (Profiler), test từng view top-down với ID record tới khi 1 view trả 0 dòng. Fix: LEFT JOIN + fallback `ISNULL(x.Field, alt_source.Field)`. Thường phải sửa nhiều tầng.
 - `Sys_ReportFilter` FldRange=3 truyền nguyên chuỗi `"Fld>='MM/dd/yyyy' AND Fld<='MM/dd/yyyy'"` vào tham số — SP phải parse và `CONVERT` format 101.
 - Report thiếu/sai record: đọc dòng **CRITERIA đỏ** cuối report trước — đó là `@QueryCriteria` SP nhận thật. SP aging PM/MC (`PMDebtorAgingDetail`...) parse As At bằng `CHARINDEX('<Fld><=', @QueryCriteria)`; không thấy → `@Temp=''` → điều kiện `<= ''` âm thầm loại receipt/allocation mà invoice vẫn hiện. Ô As At phải `FldRange=2` (FldRange=0 trên Date sinh `=`). 2 report chung 1 SP mà 1 đúng 1 sai → so `Sys_ReportFilter` 2 ReportNo trước khi soi SP (LKHS-336).
+- Report Summary sai số mà Detail cùng SP đúng (CRITERIA giống) → data đúng, lỗi ở biểu thức RDL: so ô tổng với report anh em đang đúng (bản Doc Date / bản Malaysia). Field âm (vd `UnallocedAmt` của aging PM) phải CỘNG vào Owing (LKHS-337).
+- LKHS dùng nhánh TFS SG riêng: fix ở nhánh Malaysia không tự sang SG. Bug report LKHS → so file cùng tên ở `Rel\IFCA.NET 4.0\Source\Reports`; Malaysia đúng thì chỉ port đoạn sửa, KHÔNG đè cả file (RDL SG khác chỗ khác, vd nhãn aging `PM_Company` vs `CF_Company`) (LKHS-337).
 
 ## e-Invoice (LHDN/MyInvois)
 

@@ -183,9 +183,13 @@
 ### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (fix config, test PASS Train 19/11, chờ consultant + Live)
 - EN275 và EN291 (by Trx Date) dùng chung SP `PMDebtorAgingDetail`; SP lấy As At từ chuỗi `<DetailType><=` trong criteria. `Sys_ReportFilter` EN275 (Standard 2010): ô "Doc" `FldRange=0` → `DOCUMENTDATE='..'`, ô TransactionDate khoảng vẫn Active → SP không có As At → receipt bị loại (Unallocated mất), invoice vẫn hiện.
 - Fix: DocumentDate `FldRange` 0→2 + `FldNeed=Y`, TransactionDate Inactive (theo mẫu EN291). Bug Standard — TIMATCH cùng config, hỏi Stanley. Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
-- Ngoài phạm vi: Aging Summary by Trx Date ra Owing 1,820 (lẽ ra 180); EN361 trùng 5 dòng filter TransactionDate.
+- Ngoài phạm vi: Aging Summary by Trx Date ra Owing 1,820 (lẽ ra 180) → đã làm ở LKHS-337; EN361 trùng 5 dòng filter TransactionDate.
 
-### LKHS-329, LKHS-271/320/325/326, LKHS-274, LKHS-290/292, LKHS-298, LKHS-322, LKHS-336 — xem `docs/tickets/` và `docs/memory/ticket-status.md`.
+### LKHS-337 — PM Debtor Aging Summary by Trx Date: Owing sai (FIXED Train 19/11, chờ Live + TFS SG)
+- EN292 `PM_DebtorAgingSumByTrxDate`, cùng SP `PMDebtorAgingDetail`; data/criteria đúng. RDL nhánh SG: 3 ô Owing `Sum(Age1..7 - UnallocedAmt)` mà UnallocedAmt âm → 1,000 − (−820) = 1,820.
+- Bản Doc Date (SG) và bản chuẩn Malaysia đã dùng `+` → fix Malaysia chưa port sang SG. Fix: đổi 9 chỗ `-`→`+`, không đè file Malaysia. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
+
+### LKHS-329, LKHS-271/320/325/326, LKHS-274, LKHS-290/292, LKHS-298, LKHS-322, LKHS-336, LKHS-337 — xem `docs/tickets/` và `docs/memory/ticket-status.md`.
 
 ## HARIANPG
 

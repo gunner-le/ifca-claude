@@ -19,6 +19,7 @@
 ## 4. Lệch bản deploy (server ≠ TFS)
 - Ticket: SWZECON-81→84 (fix chưa commit bị deploy đè), SWIBRACO-730 (DLL Live cũ), SWIBRACO-698 (deploy thiếu DB/DLL), LKHS-322 (DLL FA cũ), FPARK-197 (code cũ), CMSD (config lệch NAIM).
 - Đề xuất quy trình: fix xong commit TFS trong ngày; mỗi lần deploy ghi changeset + danh sách file; định kỳ so DLL/ngày file server với TFS cho client lớn.
+- Biến thể "lệch nhánh": fix ở nhánh Malaysia (`IFCA.NET 4.0`) không được port sang nhánh SG (`IFCA.NET 4.0_SG`) — LKHS-337 (RDL `PM_DebtorAgingSumByTrxDate` Owing trừ Unallocated). Đề xuất: khi sửa report/SP chuẩn ở 1 nhánh, ghi chú/kiểm file cùng tên ở nhánh còn lại.
 
 ## 5. Trigger `PREVENT_DUP_INSERT` trên AR_Trx
 - Ticket: PALMINGTONPG-4, SUMMERPG-24 (nghi), cột mới bị NULL (IsRefundNote).
