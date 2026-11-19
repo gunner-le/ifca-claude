@@ -10,5 +10,6 @@ Claude Code: dùng file ở đây thay vì viết lại từ đầu — thay pla
 | 06_triggers_on_table.sql | Save lỗi lạ / cột bị NULL dù code gửi giá trị |
 | 07_syscode_numberstructure.sql | Số chứng từ rỗng / "no row at position 0" |
 | 08_report_file_check.sql | Report sai/không ra — kiểm RDLC + filter |
+| 10_report_filter_compare.sql | 2 report chung SP mà 1 bản sai — so filter (FldRange/IsAsAtDate/Active) của các ReportNo cùng họ |
 | 09_clone_freshness.sql | DB clone trên máy mới tới ngày nào |
 Thêm query dùng lại được vào đây khi đóng ticket (1 file / 1 mục đích, có comment bài học).

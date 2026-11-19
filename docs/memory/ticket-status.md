@@ -54,6 +54,9 @@
 - Kiến trúc: GL auto-reversal tạo 2 voucher (gốc RefTable='FN_Revaluation' + reversal RefTable='GL_VoucherMain' tháng+1) qua bước tay "GL Closing > Import Sub-Ledger > Forex Gain or Loss" (GLUnImportForexGainOrLossList() + GLCBUnrealizedImporterSG), không tự động lúc Approve. Setter `FNRevaluationViaRevaluationID` set lặp an toàn (đã loại trừ). Bank test: BankAccountID=600 (UOB-USD, 772-962-438-5, Company M02 = CompanyID 206, CurrencyID=27).
 - Còn lại: xác nhận script 8 case Train đã chạy; Valerie/Stanley retest UI; deploy Live; có port sang HQ `CBRealizedGainOrLoss` không (Stanley: class SG tách riêng có chủ đích, có lẽ chỉ SG).
 
+### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (FIXED Train 19/11, chờ consultant)
+- Fix config `Sys_ReportFilter` EN275 (DocumentDate FldRange 0→2 + FldNeed Y, TransactionDate Inactive). Còn: áp Live (SELECT kiểm trước), hỏi Stanley fix Standard (TIMATCH cùng config), đổi label "Doc" (tuỳ chọn). Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
+
 ### LKHS-298 — Other Debtor SOA hiện AllocDate thay DocumentDate (FIXED, chờ consultant)
 - Report "Other Debtor Statement of Account" (LKHS, OR > Reporting). SP chính `AR_OtherDebtorAccountStatement2` (@CompanyID, @Language, @QueryCriteria) đúng — không phải nguồn lỗi.
 - Bug ở SUBREPORT (RDLC tên `AR_ODebtorAccountStatementSub`, SP `AR_OtherDebtorAccountStatement2Sub`, params @DocumentNo, @TransactionType, @AsAtDate, @CompanyID, @DocumentID = BillID invoice).

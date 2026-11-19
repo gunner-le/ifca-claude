@@ -37,6 +37,7 @@
 - Pattern report Opening+detail (Ledger/Statement): chia data thành bảng tạm CarryForward trước kỳ (gom thành 1 Opening) + MasterTable chi tiết trong kỳ. Chạy từ StartDate rất cũ đẩy gần hết lịch sử vào detail, che lỗi các cột tổng quên cộng CarryForward — bug chỉ lộ với StartDate gần thực tế. Kiểm tra MỌI cột tổng có cộng cả 2 bảng không. `Sum()` RDLC theo field từng dòng không bao giờ gồm CarryForward; fix cần 1 field scalar mới trong SP cộng cả 2 nguồn, RDLC trỏ vào hằng đó.
 - Chuỗi report/letter âm thầm loại record thiếu entity tuỳ chọn: chuỗi view lồng nhau mỗi tầng INNER JOIN thêm (Unit, e-Invoice, Property Area…) làm record thiếu entity biến mất ở tầng có INNER JOIN. Debug: trace SQL thật lúc Print (Profiler), test từng view top-down với ID record tới khi 1 view trả 0 dòng. Fix: LEFT JOIN + fallback `ISNULL(x.Field, alt_source.Field)`. Thường phải sửa nhiều tầng.
 - `Sys_ReportFilter` FldRange=3 truyền nguyên chuỗi `"Fld>='MM/dd/yyyy' AND Fld<='MM/dd/yyyy'"` vào tham số — SP phải parse và `CONVERT` format 101.
+- Report thiếu/sai record: đọc dòng **CRITERIA đỏ** cuối report trước — đó là `@QueryCriteria` SP nhận thật. SP aging PM/MC (`PMDebtorAgingDetail`...) parse As At bằng `CHARINDEX('<Fld><=', @QueryCriteria)`; không thấy → `@Temp=''` → điều kiện `<= ''` âm thầm loại receipt/allocation mà invoice vẫn hiện. Ô As At phải `FldRange=2` (FldRange=0 trên Date sinh `=`). 2 report chung 1 SP mà 1 đúng 1 sai → so `Sys_ReportFilter` 2 ReportNo trước khi soi SP (LKHS-336).
 
 ## e-Invoice (LHDN/MyInvois)
 

@@ -180,7 +180,12 @@
 - GL > Journal Management > Audit Adjustment, chuột phải → Print Journal Listing. Lỗi 1: JS hardcode `ctl00_search_SysCondition1_condition` → dùng `<%=SysCondition1.ClientID%>_condition`. Lỗi 2: `f_GetConditionFilter` đọc dropdown ẩn (không có `name`) của popup lịch → `='August'...` → thêm `if (!select.name) continue;`.
 - `accountid=-1` = chọn node Group (xem mọi công ty) — report listing chỉ nhận 1 CompanyID, không phải bug.
 
-### LKHS-329, LKHS-271/320/325/326, LKHS-274, LKHS-290/292, LKHS-298, LKHS-322 — xem `docs/tickets/` và `docs/memory/ticket-status.md`.
+### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (fix config, test PASS Train 19/11, chờ consultant + Live)
+- EN275 và EN291 (by Trx Date) dùng chung SP `PMDebtorAgingDetail`; SP lấy As At từ chuỗi `<DetailType><=` trong criteria. `Sys_ReportFilter` EN275 (Standard 2010): ô "Doc" `FldRange=0` → `DOCUMENTDATE='..'`, ô TransactionDate khoảng vẫn Active → SP không có As At → receipt bị loại (Unallocated mất), invoice vẫn hiện.
+- Fix: DocumentDate `FldRange` 0→2 + `FldNeed=Y`, TransactionDate Inactive (theo mẫu EN291). Bug Standard — TIMATCH cùng config, hỏi Stanley. Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
+- Ngoài phạm vi: Aging Summary by Trx Date ra Owing 1,820 (lẽ ra 180); EN361 trùng 5 dòng filter TransactionDate.
+
+### LKHS-329, LKHS-271/320/325/326, LKHS-274, LKHS-290/292, LKHS-298, LKHS-322, LKHS-336 — xem `docs/tickets/` và `docs/memory/ticket-status.md`.
 
 ## HARIANPG
 
