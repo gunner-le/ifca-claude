@@ -53,6 +53,10 @@
 - Chỉ ghi/cập nhật `docs/ticket-index.md`, file chi tiết `docs/tickets/<TICKET>-<slug>.md` và `docs/ifca-domain-reference.md` **khi ticket có kết quả cuối** (root cause confirm, fix đã áp, hoặc đóng). Không ghi sau mỗi vòng trao đổi.
 - Khi ticket "nặng" xong: (1) cập nhật index; (2) viết file chi tiết (bối cảnh, root cause, fix, test); (3) trích kiến thức dùng chung sang domain reference (kể cả menu/màn hình/bảng đã xác nhận); (4) đưa note Jira tiếng Anh **2 bản Tech + Non-tech**, mỗi bản 1 đoạn liền (Root Cause / Fix / Status) — chỉ viết khi root cause/fix đã test đúng.
 - Lỗi setup môi trường ghi vào `docs/ENV-setup-checklist.md`.
+- **Changeset TFS:** Gunner gửi changeset ID của ticket nào → ghi NGAY (ngoại lệ quy tắc "chỉ ghi khi có kết quả cuối"), 1 Jira thường có changeset ở **2 nhánh Dev (Train) và Rel (Live)**, mỗi nhánh có thể nhiều changeset → nhóm theo nhánh, thêm ID mới vào cuối (không ghi đè ID cũ). Format thống nhất để grep được:
+  - `docs/ticket-index.md`, cột Trạng thái: `CS Dev: 95010, 95022 · Rel: 95011` (LKHS ghi `Dev SG` / `Rel SG`; nhánh chưa commit ghi `Rel: chưa`).
+  - `docs/tickets/<TICKET>-*.md`, mục `## Changeset TFS` (bảng): `| Nhánh | Changeset | Ngày | File/object | Ghi chú |` — 1 dòng / changeset, nhánh ghi đường dẫn đầy đủ (`Dev\BRANCHES\NET4.0_REL`, `Rel\IFCA.NET 4.0`, `..._SG`).
+  - Ticket chưa có dòng index → ghi vào mục ticket trong `docs/jira-context.md` theo format dòng index. Dùng khi: revert (`tf rollback /changeset:<id>`), kiểm server đã có fix chưa, port fix sang nhánh khác (LKHS SG ↔ Malaysia).
 
 ## Tài liệu trong `docs/`
 
