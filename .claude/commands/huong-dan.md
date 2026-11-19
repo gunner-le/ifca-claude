@@ -25,6 +25,9 @@ Hiển thị bảng hướng dẫn (KHÔNG làm gì khác, không đọc thêm f
 - "làm tiếp <JiraID>" — tiếp ticket dở ở phiên mới
 - "LKHS-325 đang làm tới đâu?" — GIRO đọc handoff
 - "chạy query 04 so config LstNo X giữa DB A và B" — dùng thư viện `tools/queries/`
+- "LKHS-336, CMSD-60 xong, Rel 95011" — đóng nhanh (chỉ cập nhật trạng thái + changeset)
+- "LKHS-337: Dev 95010, Rel 95011" — ghi changeset
+- "mở lại LKHS-337, Live lại sai …" — reopen (đọc file cũ, thêm mục Reopen)
 
 ## Mở Claude Code
 `ifca.bat` → chọn số client (0 = không source: patch data / query server, file server copy vào `work\<JiraID>\`) · `ifca.bat LKHS_Train LKHS` (nhiều thư mục) · `claude -c` (phiên gần nhất)
