@@ -5,7 +5,7 @@ Hiển thị bảng hướng dẫn (KHÔNG làm gì khác, không đọc thêm f
 |---|---|---|
 | `/huong-dan` | Quên lệnh | |
 | `/ticket-moi <JiraID> <nội dung>` | Bắt đầu ticket | `/ticket-moi SWZECON-105 AP > Report ...` |
-| `/so-tfs <file/object>` | Nghi lệch deploy / customize — so client với TFS | `/so-tfs App_Code/PM/PMCommonBL.cs` |
+| `/so-tfs <file/object> [A\|B\|C]` | So client với TFS Live (A kiểm nhanh · B đoạn liên quan · C toàn file) | `/so-tfs App_Code/PM/PMCommonBL.cs B` |
 | `/tam-dung <JiraID>` | Gác ticket dở, ghi trạng thái | `/tam-dung LKHS-335` |
 | `/xuat-thay-doi <JiraID>` | Lấy danh sách chỗ sửa (dòng mốc) để áp server/TFS | `/xuat-thay-doi LKHS-333` |
 | `/dong-ticket <JiraID>` | Ticket xong: cập nhật docs + note Jira Tech/Non-tech | `/dong-ticket FPARK-216` |

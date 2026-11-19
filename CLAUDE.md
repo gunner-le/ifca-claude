@@ -11,7 +11,7 @@
 - **3 môi trường / client:** Train (test), Live Testing (clone Live, không bắt buộc), Live (production).
 - Mặc định code/SQL Gunner đưa là của server/DB client đang xử lý. Chỉ khi Gunner nói "đây là TFS" mới hiểu là baseline chung.
 - **Commit TFS do Gunner tự làm** — Claude không check-in, chỉ sửa file / đưa đúng đoạn fix.
-- Đồng nghiệp: Stanley (lead/architect, chốt nghiệp vụ & policy), Julia (consultant/QA TIMATCH, FPARK, SWZECON, CMSD), Valerie (LKHS), Heah Pei Juin (LKHS, ASPENPG), WP Lim (JBTNPSB), Edward, Zac Ng (ASPENPG), Nguyen Quoc Viet (lead/consultant VN, hỏi nghiệp vụ).
+- Đồng nghiệp: xem mục "Môi trường & công cụ của Gunner".
 
 ## An toàn khi chạy lệnh (Claude Code)
 
@@ -22,13 +22,12 @@
 
 ## Quy tắc hành vi khi trả lời
 
-- **Luôn trả lời bằng tiếng Việt.** Nội dung gửi consultant/IFCA (note Jira, tin nhắn Stanley...) viết **tiếng Anh**, ngắn, không jargon. Tin nhắn cho Stanley: ngắn, chỉ hỏi, bám đúng ý Stanley vừa nêu.
-- Gunner nói tiếng Anh/nghe yếu: khi họp với Stanley thì chuẩn bị sẵn talking points tiếng Anh.
+- **Luôn trả lời bằng tiếng Việt.** Nội dung gửi consultant/IFCA (note Jira, tin nhắn Stanley...) viết **tiếng Anh**, ngắn, không jargon. Gunner nghe/nói tiếng Anh yếu → tin nhắn cho Stanley: ngắn, chỉ hỏi, bám đúng ý Stanley vừa nêu; họp với Stanley thì chuẩn bị sẵn talking points tiếng Anh.
 - **Nhận ticket mới:** không hỏi trắc nghiệm. Tóm tắt ngắn hiểu của mình về ticket → rồi hỏi bằng văn bản thường thông tin còn thiếu.
 - **Trước khi trả lời ticket mới:** tra `docs/ticket-index.md`, `docs/jira-context.md`, `docs/ifca-domain-reference.md`, `docs/memory/*` và file ticket cũ cùng màn hình/bảng — **không đoán lại** những gì đã từng xác định (đã từng đoán sai `AP_Trx` cho màn AP Transaction, đúng là `AP_Journal`). Đối chiếu đúng cột Client trước khi áp finding cũ.
 - **Không đoán khi chưa có dữ liệu thật.** Cần data thì đưa ngay câu SQL sẵn chạy (hoặc tự chạy SELECT nếu được phép), không chỉ liệt kê cần gì.
 - Khi điều tra: **mỗi lượt chỉ 1 query / 1 yêu cầu** (bước kiểm tra quyết định nhất), Gunner không check song song nhiều thứ được.
-- **Không tự so sánh với code/report trên TFS** (`SourceCode`) — chỉ làm khi Gunner yêu cầu hoặc đã xác nhận trước.
+- **So với TFS: luôn HỎI trước, Gunner xác nhận mới so** — xem mục "So với TFS — hỏi trước, so theo mức". Không tự đọc/so `SourceCode`, nhưng phải chủ động gợi ý (Gunner hay quên).
 - Investigate root cause trước khi fix; bế tắc ở DB → decompile DLL (dnSpy/ILSpy) hoặc hỏi Stanley, không suy đoán tiếp. Luôn xác nhận đúng call chain từ nút trên UI (tên hàm giống nhau là bẫy). Luôn check `Sys_Report.ReportFileName` trỏ đúng RDLC trước khi soi SP.
 - Giải thích bối cảnh nghiệp vụ khi Gunner gặp module lạ.
 
@@ -81,9 +80,7 @@
 - Visual Studio 2022 (không dùng VS 2026 cho WebForms .NET 4.8); dnSpy/ILSpy khi DLL server khác TFS source.
 - SQL Server production + Docker SQL Server 2025 để test (port 1434, volume `sqlvolume2025`), SSMS. .NET Framework 4.8 (Release 533509).
 - Report SSRS/RDLC (Report Builder), letter Word mail-merge; QRCoder.dll phải đăng ký GAC + restart Report Server sau deploy. e-Invoice MyInvois/LHDN (IRBM).
-- Jira: supportnet.ifcasoftware.com (account "IFCAVN RND Hoang Le Tien" = Gunner). TFS DB script chia folder New Table / Table Change / Views / Update Script / Stored Procedures / Functions — 1 file = 1 object.
 - Đồng nghiệp: Stanley (lead/kiến trúc, quyết policy, escalate), Julia (consultant/tester TIMATCH, FPARK, SWZECON, CMSD), Heah Pei Juin (LKHS, ASPENPG), Valerie (LKHS), Edward (HKB, SWZECON, SWIBRACO), WP Lim (JBTNPSB), Zac Ng (dev ASPENPG), anh Nguyễn Quốc Việt (lead VN, hỏi nghiệp vụ), James Dinh (dev, GRSUMMIT-176).
-- Gunner nghe/nói tiếng Anh yếu: tin nhắn/talking point cho Stanley phải ngắn, chỉ hỏi, bám đúng điểm Stanley vừa nêu.
 - Collation DB IFCA `Chinese_PRC_CI_AS` ≠ tempdb → thêm `COLLATE DATABASE_DEFAULT` cho join chuỗi với bảng tạm.
 - Ưu tiên ổn định & đúng dữ liệu hơn tối đa hiệu năng; tối ưu SP chọn cách an toàn.
 - Code snippet: không dùng `++`/`--` (hỏng ký tự khi copy) — dùng `+= 1`/`-= 1`.
@@ -123,7 +120,7 @@ Code/SQL Gunner paste mặc định là của Live client đang xử lý — th�
 | SWZECON | SWZECON_Live | |
 | TH_LIVE | TH_LIVE | sửa thẳng Standard như LKHS |
 | TIMATCH | TIMATCH_LIVE | |
-| **TFS Standard** | SourceCode | source lấy từ TFS = baseline chuẩn, chia thư mục con theo môi trường (Train/Live) — chọn đúng nhánh khi so sánh; nghi bug do customize thì so với đây |
+| **TFS Standard** | SourceCode | source lấy từ TFS = baseline chuẩn, chia thư mục con theo môi trường (Train/Live) — chọn đúng nhánh khi so sánh; chỉ so khi Gunner xác nhận (mục "So với TFS") |
 | HKB, HARIANPG, client mới | chưa có — cập nhật khi làm ticket | |
 
 ## TFS Standard — cấu trúc `E:\IFCA Software\SourceCode` (mirror TFS `$/Property/`)
@@ -137,9 +134,20 @@ Các nhánh khác (`NET4.0`, `NET4.0_VN`, `NET3.5_VN`, `IFCA.NET 4.0_VN`, `IFCA.
 - `Rel\IFCA.NET 4.0\` gồm: `Source` (PropertyNet web, vd `Source\PropertyNet\App_Code\PM\PMCommonBL.cs` = "TFS Live" ở SWZECON-84), `Customization` (DLL customize theo client), `Customized Version`, `Common Library` (DLL framework/BL dùng chung, vd FA), `SmartClient`, `E-Invoice Client Deployment`, `Tools`.
 - `Rel\IFCA.NET 4.0_SG\` cấu trúc khác: `PropertyNet`, `Reports`, `Data Definition`, `Common Library`.
 - Package nâng version (PLBPG-79): `_Package (Edge)/Versioning/Version XX` trên TFS.
-- **So với TFS (code / SP / view / report RDLC) CHỈ làm khi Gunner yêu cầu** (vd `/so-tfs`) **hoặc Gunner đã xác nhận đồng ý** — không tự động đọc/so `SourceCode` trong lúc điều tra. Nếu thấy cần so, hỏi 1 câu ngắn rồi chờ.
-- So bản client với chuẩn (khi được yêu cầu): client Train → `Dev\BRANCHES\NET4.0_REL`, client Live → `Rel\IFCA.NET 4.0` (LKHS dùng 2 nhánh _SG). Bug có ở bản chuẩn → bug sản phẩm, Gunner tự commit TFS vào đúng nhánh Train/Live.
+- Nhánh để so: client Train → `Dev\BRANCHES\NET4.0_REL`, client Live → `Rel\IFCA.NET 4.0` (LKHS dùng 2 nhánh _SG). Bug có ở bản chuẩn → bug sản phẩm, Gunner tự commit TFS vào đúng nhánh Train/Live.
 - Mở kèm khi cần so: `ifca.bat SWZECON_Live "SourceCode\Rel\IFCA.NET 4.0"` hoặc trong phiên `/add-dir "E:\IFCA Software\SourceCode\Rel\IFCA.NET 4.0"`.
+
+## So với TFS — hỏi trước, so theo mức (rule chuẩn duy nhất)
+Nhiều bug là client chưa được deploy fix đã có trên TFS → đầu ticket nên đối chiếu TFS **Live** trước. Nhưng so tốn token → **luôn hỏi, Gunner xác nhận mới so** (kể cả code, SP, view, report RDLC).
+1. **Khi nào hỏi:** (a) đầu ticket — trong `/ticket-moi`, sau phần tóm tắt, khi đã biết file/SP/view/report nghi ngờ; (b) khi điều tra chạm thêm file/object mới chưa so; (c) trước khi chốt root cause / đề xuất fix mà chưa so. Hỏi 1 câu cuối câu trả lời, không dừng việc điều tra khác, vd: *"So `ARReceipt.aspx.cs` + `sp_xxx` với TFS Live (`Rel\IFCA.NET 4.0`)? (A) kiểm nhanh · (B) so đoạn liên quan · (C) toàn file · bỏ qua"*. Mỗi file/object hỏi 1 lần; Gunner bỏ qua thì thôi.
+2. **3 mức (rẻ trước):**
+   - **A — kiểm nhanh (~0 token):** so hash/kích thước bằng lệnh (`Get-FileHash` / `git diff --no-index --stat`), không đọc nội dung. Giống → xong; khác → chỉ báo số dòng khác.
+   - **B — đoạn liên quan:** chỉ diff hàm/method/khối SP dính tới bug.
+   - **C — toàn file:** chỉ khi Gunner chọn.
+3. **SP / view / report:** tìm `.sql` / `.rdlc` trong TFS; bản client lấy bằng `OBJECT_DEFINITION` (Gunner chạy, hoặc tự SELECT nếu DB trên máy Gunner). Trước khi so nhắc Gunner `SourceCode` local đã get latest chưa (bản cũ → kết luận "chưa fix" sai).
+4. **Đọc kết quả:** TFS có mà client không có → nhiều khả năng fix chưa deploy → đề xuất lấy fix TFS, không viết fix mới. Client có mà TFS không có → sửa riêng chưa commit, cảnh báo dễ bị deploy đè (SWZECON-81/84). Customize `_<CLIENT>` / comment Jira client → giữ.
+4b. **LKHS (nhánh SG) — so 2 nhánh:** fix ở nhánh Malaysia (`Rel\IFCA.NET 4.0`) không tự sang SG (`Rel\IFCA.NET 4.0_SG`). Bug LKHS → khi hỏi, đề xuất so cả 2: client LKHS ↔ TFS SG (lệch deploy) **và** SG ↔ Malaysia (chuẩn chung — lệch nhánh). SG khác Malaysia ở chỗ dính bug → nhiều khả năng fix Malaysia chưa port → chỉ port đúng đoạn sửa, KHÔNG đè cả file Malaysia (file SG khác ở chỗ khác, vd `PM_Company` vs `CF_Company`) (LKHS-337: RDL `PM_DebtorAgingSumByTrxDate` Owing trừ Unallocated). Ngược lại: sửa file chuẩn ở 1 nhánh → nhắc Gunner kiểm file cùng tên ở nhánh còn lại.
+5. **Ghi lại để không hỏi lặp:** so xong (hoặc Gunner bảo bỏ qua) → ghi 1 dòng vào `docs/tickets/<TICKET>-*.md` nếu có, không thì mục ticket trong `docs/jira-context.md` PHẦN B (ngoại lệ của quy tắc "chỉ ghi docs khi có kết quả cuối"): `TFS Live: so <file> ngày <yyyy-mm-dd>, mức A/B/C → giống / TFS có fix / client sửa riêng / bỏ qua`. Mở lại ticket thì đọc dòng này trước khi hỏi.
 
 ## Sửa file có sẵn (code / SQL) — KHÔNG để Gunner phải copy đè cả file
 Thư mục `E:\IFCA Software\<client>` và `SourceCode` là BẢN SAO trên máy Gunner, có thể cũ hơn server/TFS. Gunner KHÔNG copy đè cả file lên server/TFS (sợ mất phần sửa của người khác) — chỉ áp phần fix có note Jira.
@@ -171,12 +179,12 @@ Quy tắc:
 - Tên DB audit luôn `IFCANetAudit_R2_8`. Compat level thấp (vd 100) không có STRING_AGG.
 
 ## Lệnh tắt (slash command) — trong `.claude/commands/`
-`/huong-dan` (tra cứu mọi lệnh) · `/ticket-moi <Jira>` · `/so-tfs <file>` · `/tam-dung <Jira>` · `/xuat-thay-doi <Jira>` · `/dong-ticket <Jira>` · `/bao-cao-tuan`
-Thư mục `SourceCode` (TFS chuẩn) bị cấm sửa trong `.claude/settings.json` — chỉ đọc để so sánh, và chỉ khi Gunner yêu cầu/đồng ý.
+`/huong-dan` (tra cứu mọi lệnh) · `/ticket-moi <Jira>` · `/so-tfs <file> [A|B|C]` · `/tam-dung <Jira>` · `/xuat-thay-doi <Jira>` · `/dong-ticket <Jira>` · `/bao-cao-tuan`
+Thư mục `SourceCode` (TFS chuẩn) bị cấm sửa trong `.claude/settings.json` — chỉ đọc, chỉ so khi Gunner xác nhận.
 Screenshot: lưu vào `screens\` rồi gõ đường dẫn.
 
 ## Kiểm tra nhanh khi nhận bug (trước khi đào sâu)
-1. **Lệch deploy?** Rất nhiều bug là server ≠ TFS (SWZECON-84, SWIBRACO-730/698, LKHS-322, FPARK-197, CMSD). Nghi ngờ lệch deploy → **chỉ gợi ý 1 câu** "có nên so với TFS không?", KHÔNG tự so (xem mục "So với TFS").
+1. **Lệch deploy?** Rất nhiều bug là server ≠ TFS (SWZECON-84, SWIBRACO-730/698, LKHS-322, FPARK-197, CMSD). → hỏi Gunner có so TFS Live không, theo mục "So với TFS" (không tự so).
 2. **Lỗi đã biết?** Đối chiếu `docs/de-xuat-sua-tan-goc.md`: Tax Adj Journal không có GL, JS đọc cột grid ẩn, Bill Item Inactive, trigger PREVENT_DUP_INSERT, sale Return lọt letter.
 3. **Màn hình → bảng thật:** `tools/queries/03_screen_to_tables.sql`; xem định nghĩa view đọc trước khi suy luận dữ liệu.
 4. Gặp nhóm lỗi trong `de-xuat-sua-tan-goc.md` lần nữa → xử lý ticket, rồi nhắc Gunner mục đề xuất (thêm ticket vào danh sách đó khi `/dong-ticket`).
