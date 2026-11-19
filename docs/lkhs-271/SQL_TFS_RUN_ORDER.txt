@@ -1,0 +1,34 @@
+LKHS-271 / LKHS-320 / LKHS-325 - AR Collection GIRO (DBS) - SQL objects, split for TFS (1 file = 1 object)
+=========================================================================================================
+All scripts are re-runnable. Run in this order (views depend on tables / other views).
+Prerequisite: GIRO master setup scripts (CF_Company.AllowGiroProcess, CF_CompanyGiroBank, AR_Debtor GIRO columns).
+
+ #  Folder          File                                              Object / content
+ 1  Table Change    CB_Receipt_GIRO.sql                               CB_Receipt + IsGiroReceipt / GIRORecordStatus / GroupNo
+ 2  New Table       CB_GIROTempDetail.sql                             working table of Generate GIRO Collection popup
+ 3  New Table       CB_ReceiptGroup.sql                               GIRO batch
+ 4  New Table       CB_ReceiptGroupDetail.sql                         receipts of a batch
+ 5  New Table       CB_ReceiptGroup_AuditLog.sql                      batch audit log
+ 6  Views           View_CB_GIROCollectionPending.sql                 bills to collect (Generate GIRO Collection list)
+ 7  Views           View_CB_GIROCollectionGenerate.sql                popup header
+ 8  Views           View_CB_GIROCollectionTempDetail.sql              popup detail      (needs 2, 6)
+ 9  Views           View_CB_GIROLookup.sql                            SWIFT / DBS Purpose Code lists
+10  Views           View_CB_Receipt_GIRO.sql                          GIRO receipts + DBS file data (needs 1, 9)
+11  Views           View_CB_ReceiptGroupGenerate.sql                  GIRO Batch Generation header (needs 3)
+12  Views           View_CB_ReceiptGroup_GIRO.sql                     GIRO Batch Listing (needs 3, 4)
+13  Views           View_AC_Receipt.sql                               STANDARD view (Collection Verification) + 3 GIRO columns (needs 1)
+14  Update Script   LKHS-271_02_Config_CB_GIROCollection.sql          Sys_ config: Generate GIRO Collection list   (needs 6)
+15  Update Script   LKHS-271_04_Config_CB_GIROCollectionGenerate.sql  Sys_ config: Generate popup                  (needs 7, 8)
+16  Update Script   LKHS-271_08_Config_CB_GIROBatchGenerate.sql       Sys_ config: GIRO Batch Generation popup     (needs 10, 11)
+17  Update Script   LKHS-271_10_Config_CB_GIROBatchList.sql           Sys_ config: GIRO Batch Listing              (needs 12)
+18  Update Script   LKHS-271_11_Config_CB_GIROBatchImport.sql         Sys_ config: Upload / Pre-Check, Cancel button
+19  Update Script   LKHS-271_13_Config_AC_Receipt_GIRO.sql            Sys_ config: Collection Verification GIRO columns / criteria (needs 13)
+
+Old numbered names -> new files:
+  01 -> View_CB_GIROCollectionPending | 03 -> CB_GIROTempDetail + View_CB_GIROCollectionGenerate + View_CB_GIROCollectionTempDetail
+  05 -> CB_Receipt_GIRO | 06 -> CB_ReceiptGroup + CB_ReceiptGroupDetail + CB_ReceiptGroup_AuditLog
+  07 -> View_CB_GIROLookup + View_CB_Receipt_GIRO + View_CB_ReceiptGroupGenerate | 09 -> View_CB_ReceiptGroup_GIRO | 12 -> View_AC_Receipt
+  02, 04, 08, 10, 11, 13 -> Update Script (content unchanged)
+Content of every object = latest version (incl. D35 Identity No in View_CB_Receipt_GIRO). Test data script 98 is not included (not for TFS).
+NOTE View_AC_Receipt: standard view already in TFS -> update the existing file with this definition (ALTER VIEW).
+NOTE package naming: in the TFS package the Update Scripts are named LKHS-320_01/02 and LKHS-325_01..04 (see PACKAGE_TFS_LKHS-320_325.md).
