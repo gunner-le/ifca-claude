@@ -28,6 +28,7 @@
 - **Trước khi trả lời ticket mới:** tra `docs/ticket-index.md`, `docs/jira-context.md`, `docs/ifca-domain-reference.md`, `docs/memory/*` và file ticket cũ cùng màn hình/bảng — **không đoán lại** những gì đã từng xác định (đã từng đoán sai `AP_Trx` cho màn AP Transaction, đúng là `AP_Journal`). Đối chiếu đúng cột Client trước khi áp finding cũ.
 - **Không đoán khi chưa có dữ liệu thật.** Cần data thì đưa ngay câu SQL sẵn chạy (hoặc tự chạy SELECT nếu được phép), không chỉ liệt kê cần gì.
 - Khi điều tra: **mỗi lượt chỉ 1 query / 1 yêu cầu** (bước kiểm tra quyết định nhất), Gunner không check song song nhiều thứ được.
+- **Không tự so sánh với code/report trên TFS** (`SourceCode`) — chỉ làm khi Gunner yêu cầu hoặc đã xác nhận trước.
 - Investigate root cause trước khi fix; bế tắc ở DB → decompile DLL (dnSpy/ILSpy) hoặc hỏi Stanley, không suy đoán tiếp. Luôn xác nhận đúng call chain từ nút trên UI (tên hàm giống nhau là bẫy). Luôn check `Sys_Report.ReportFileName` trỏ đúng RDLC trước khi soi SP.
 - Giải thích bối cảnh nghiệp vụ khi Gunner gặp module lạ.
 
@@ -136,7 +137,8 @@ Các nhánh khác (`NET4.0`, `NET4.0_VN`, `NET3.5_VN`, `IFCA.NET 4.0_VN`, `IFCA.
 - `Rel\IFCA.NET 4.0\` gồm: `Source` (PropertyNet web, vd `Source\PropertyNet\App_Code\PM\PMCommonBL.cs` = "TFS Live" ở SWZECON-84), `Customization` (DLL customize theo client), `Customized Version`, `Common Library` (DLL framework/BL dùng chung, vd FA), `SmartClient`, `E-Invoice Client Deployment`, `Tools`.
 - `Rel\IFCA.NET 4.0_SG\` cấu trúc khác: `PropertyNet`, `Reports`, `Data Definition`, `Common Library`.
 - Package nâng version (PLBPG-79): `_Package (Edge)/Versioning/Version XX` trên TFS.
-- So bản client với chuẩn: client Train → `Dev\BRANCHES\NET4.0_REL`, client Live → `Rel\IFCA.NET 4.0` (LKHS dùng 2 nhánh _SG). Bug có ở bản chuẩn → bug sản phẩm, Gunner tự commit TFS vào đúng nhánh Train/Live.
+- **So với TFS (code / SP / view / report RDLC) CHỈ làm khi Gunner yêu cầu** (vd `/so-tfs`) **hoặc Gunner đã xác nhận đồng ý** — không tự động đọc/so `SourceCode` trong lúc điều tra. Nếu thấy cần so, hỏi 1 câu ngắn rồi chờ.
+- So bản client với chuẩn (khi được yêu cầu): client Train → `Dev\BRANCHES\NET4.0_REL`, client Live → `Rel\IFCA.NET 4.0` (LKHS dùng 2 nhánh _SG). Bug có ở bản chuẩn → bug sản phẩm, Gunner tự commit TFS vào đúng nhánh Train/Live.
 - Mở kèm khi cần so: `ifca.bat SWZECON_Live "SourceCode\Rel\IFCA.NET 4.0"` hoặc trong phiên `/add-dir "E:\IFCA Software\SourceCode\Rel\IFCA.NET 4.0"`.
 
 ## Sửa file có sẵn (code / SQL) — KHÔNG để Gunner phải copy đè cả file
@@ -170,11 +172,11 @@ Quy tắc:
 
 ## Lệnh tắt (slash command) — trong `.claude/commands/`
 `/huong-dan` (tra cứu mọi lệnh) · `/ticket-moi <Jira>` · `/so-tfs <file>` · `/tam-dung <Jira>` · `/xuat-thay-doi <Jira>` · `/dong-ticket <Jira>` · `/bao-cao-tuan`
-Thư mục `SourceCode` (TFS chuẩn) bị cấm sửa trong `.claude/settings.json` — chỉ đọc để so sánh.
+Thư mục `SourceCode` (TFS chuẩn) bị cấm sửa trong `.claude/settings.json` — chỉ đọc để so sánh, và chỉ khi Gunner yêu cầu/đồng ý.
 Screenshot: lưu vào `screens\` rồi gõ đường dẫn.
 
 ## Kiểm tra nhanh khi nhận bug (trước khi đào sâu)
-1. **Lệch deploy?** Rất nhiều bug là server ≠ TFS (SWZECON-84, SWIBRACO-730/698, LKHS-322, FPARK-197, CMSD). Nghi ngờ code/config → `/so-tfs <file>` sớm.
+1. **Lệch deploy?** Rất nhiều bug là server ≠ TFS (SWZECON-84, SWIBRACO-730/698, LKHS-322, FPARK-197, CMSD). Nghi ngờ lệch deploy → **chỉ gợi ý 1 câu** "có nên so với TFS không?", KHÔNG tự so (xem mục "So với TFS").
 2. **Lỗi đã biết?** Đối chiếu `docs/de-xuat-sua-tan-goc.md`: Tax Adj Journal không có GL, JS đọc cột grid ẩn, Bill Item Inactive, trigger PREVENT_DUP_INSERT, sale Return lọt letter.
 3. **Màn hình → bảng thật:** `tools/queries/03_screen_to_tables.sql`; xem định nghĩa view đọc trước khi suy luận dữ liệu.
 4. Gặp nhóm lỗi trong `de-xuat-sua-tan-goc.md` lần nữa → xử lý ticket, rồi nhắc Gunner mục đề xuất (thêm ticket vào danh sách đó khi `/dong-ticket`).
