@@ -251,3 +251,4 @@ TFS Live: chưa so `View_Report_DebtorLedgerReport_TIMATCH` / `view_Report_Debto
 | Nhánh | Changeset | Ngày | File/object | Ghi chú |
 |---|---|---|---|---|
 | `Dev\BRANCHES\NET4.0_REL` | 99606 | 2026-11-20 | View `View_Report_DebtorLedgerReport_TIMATCH` + config filter `401_TIMATCH` | Fix CN Voided nhân đôi (EXISTS) + filter Record Status |
+| `Rel\IFCA.NET 4.0` | 99615 | 2026-11-20 | View `View_Report_DebtorLedgerReport_TIMATCH` + config filter `401_TIMATCH` | Julia test OK, đã áp Live |
