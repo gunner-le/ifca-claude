@@ -2,7 +2,7 @@
 
 - **Client:** LKHS (Singapore, nhánh TFS `NET4.0_SG` / `IFCA.NET 4.0_SG`). Test trên LKHS Train, debtor `TEST-001`.
 - **Menu:** CSM (module PM — Construction) > Reporting > Debtor Aging Summary by Trx Date.
-- **Trạng thái (19/11/2026):** Root cause đã xác nhận, đã sửa RDL trên LKHS Train, Gunner test OK (Owing 180). Còn áp Live + TFS SG.
+- **Trạng thái (20/11/2026): ĐÓNG.** Gunner test OK Train 19/11 (Owing 180), consultant OK Train, Gunner đã áp Live 20/11. TFS Dev SG 99594, Rel SG 99614.
 - Tài liệu consultant: `CSM Aging Reports.xlsx` tab "by trx date" (bản copy ở `work\LKHS-336\`). File RDL server + bản gốc ở `work\LKHS-337\` (không commit).
 - Lỗi đã thấy từ LKHS-336 (mục "ngoài phạm vi").
 
@@ -53,10 +53,17 @@ Sau sửa: 0 chỗ `-`, 9 chỗ `+`, chỉ 9 dòng thay đổi, giữ UTF-8 BOM 
 
 - Outstanding 1,000.00 / Unallocated (820.00) / Owing **180.00** — khớp Detail by Trx Date. **PASS** (Gunner 19/11).
 
+## Changeset TFS
+
+| Nhánh | Changeset | Ngày | File/object | Ghi chú |
+|---|---|---|---|---|
+| `Dev\BRANCHES\NET4.0_SG` | 99594 | 2026-11-19 | `Reports\PM_DebtorAgingSumByTrxDate.rdl` | Owing `- Fields!UnallocedAmt.Value` → `+` (9 chỗ) |
+| `Rel\IFCA.NET 4.0_SG` | 99614 | 2026-11-20 | `Reports\PM_DebtorAgingSumByTrxDate.rdl` | như trên |
+
 ## Còn mở
 
-- Áp Live LKHS: tải RDL đang deploy trên Live về kiểm tra (có thể khác Train), đổi đúng 9 chỗ, upload.
-- TFS: **Dev `NET4.0_SG` đã check-in — Changeset 99594** (Gunner, 19/11). Còn Rel `IFCA.NET 4.0_SG` (Get Latest, đổi 9 chỗ, check-in).
+- ~~Áp Live LKHS~~ — đã áp 20/11 (Gunner).
+- ~~TFS SG~~ — Dev 99594, Rel 99614 (xem bảng Changeset).
 - (Tuỳ chọn) Báo Stanley: snapshot RDL của vài client Malaysia trong TFS vẫn còn công thức cũ.
 
 ## Bài học

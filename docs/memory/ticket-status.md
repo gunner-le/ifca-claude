@@ -54,8 +54,8 @@
 - Kiến trúc: GL auto-reversal tạo 2 voucher (gốc RefTable='FN_Revaluation' + reversal RefTable='GL_VoucherMain' tháng+1) qua bước tay "GL Closing > Import Sub-Ledger > Forex Gain or Loss" (GLUnImportForexGainOrLossList() + GLCBUnrealizedImporterSG), không tự động lúc Approve. Setter `FNRevaluationViaRevaluationID` set lặp an toàn (đã loại trừ). Bank test: BankAccountID=600 (UOB-USD, 772-962-438-5, Company M02 = CompanyID 206, CurrencyID=27).
 - Còn lại: xác nhận script 8 case Train đã chạy; Valerie/Stanley retest UI; deploy Live; có port sang HQ `CBRealizedGainOrLoss` không (Stanley: class SG tách riêng có chủ đích, có lẽ chỉ SG).
 
-### LKHS-337 — PM Debtor Aging Summary by Trx Date Owing sai (FIXED Train 19/11, test OK)
-- RDL `PM_DebtorAgingSumByTrxDate` nhánh SG: Owing trừ UnallocedAmt (âm) → đổi 9 chỗ `- Fields!UnallocedAmt.Value` → `+`. TFS Dev `NET4.0_SG` = Changeset 99594. Còn: áp Live (tải RDL Live về kiểm trước), TFS Rel `IFCA.NET 4.0_SG`. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
+### LKHS-337 — PM Debtor Aging Summary by Trx Date Owing sai (ĐÓNG 20/11 — consultant OK, đã áp Live)
+- RDL `PM_DebtorAgingSumByTrxDate` nhánh SG: Owing trừ UnallocedAmt (âm) → đổi 9 chỗ `- Fields!UnallocedAmt.Value` → `+`. CS Dev SG: 99594 · Rel SG: 99614. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
 
 ### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (ĐÓNG 20/11 — consultant OK, đã áp Live)
 - Fix config `Sys_ReportFilter` EN275 (DocumentDate FldRange 0→2 + FldNeed Y, TransactionDate Inactive). Còn: hỏi Stanley fix Standard (TIMATCH cùng config), đổi label "Doc" (tuỳ chọn). Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
