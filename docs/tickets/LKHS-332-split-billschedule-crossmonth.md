@@ -3,7 +3,8 @@
 - **Client / môi trường:** LKHS (Singapore, CompanyID 195 / S36 Paya Lebar Square), Train trước rồi Live. Source: `E:\IFCA Software\LKHS`, `LKHS_Train` (TFS nhánh `NET4.0_SG` / `IFCA.NET 4.0_SG`).
 - **Màn hình / menu:** Rental Mgmt > Contract Management > Bill Schedule (Billing Period theo tháng của `ScheduleDate`). Ticket là patch data, không sửa code.
 - **Ticket liên quan:** LKHS-282 (gốc: `CF_Parameter.UnPeriodAlgorithm_up` 28 → 0), LKHS-327 (rollout tham số, sửa JS NotRentalColor), LKHS-329 (Lease Commitment, renewal/addendum cùng `DebtorID`).
-- **Trạng thái (20/11/2026):** đang dở — script đã viết, chưa chạy trên DB nào; chờ chạy query phạm vi.
+- **Trạng thái:** ĐÓNG 20/11/2026 — Live không còn dòng gộp (không cần patch); consultant không yêu cầu patch Train. Script rev 20/11 giữ sẵn, chưa chạy DB nào — dùng lại nếu consultant báo cần.
+- **Script:** `work/LKHS-332/LKHS-332_Split_BillSchedule_CrossMonth.sql` (bản rev 20/11; `work/` không commit git).
 - **TFS:** không áp dụng (patch data, không đụng code/SP).
 
 ## Bảng / object
@@ -18,8 +19,19 @@
 - Renewal giữ cùng `RentalID`, đổi charge → sau tách 01/04–28/04 (charge cũ) nằm cạnh 29/04–30/04 (charge mới), không trùng.
 - **20/11 consultant:** debtor trong ticket đã được sinh lại đúng sau lease addendum → **KHÔNG patch debtor đó**; vẫn phải **quét toàn bộ** Bill Schedule hiện có và patch các dòng còn gộp.
 
+- **Quét phạm vi 20/11** (mọi dòng vắt qua tháng, theo RecordStatus / ngày bắt đầu):
+  - **Live:** 0 dòng Active (Inactive: 139 dòng/9 debtor bắt đầu ngày 1, 48 dòng/3 debtor ngày khác) → **Live không cần patch**.
+  - **Train:** Active 181 dòng/16 debtor bắt đầu ngày 1 + 36 dòng/2 debtor bắt đầu ngày khác (có thể chu kỳ lệch ngày kiểu A&P 29→28 → REVIEW). Consultant: không yêu cầu patch Train.
+  - Bài học: lần đầu chạy nhầm DB → luôn ghi rõ server/DB khi dán kết quả.
+
+## Script rev 20/11 (so với bản claude.ai)
+- (a) Result set đầu: cột `MC_BillSchedule` không có trong INSERT; cột NOT NULL không default → dừng.
+- (b) `REVIEW: amount is NULL` — trước đây `DocumentAmtBefTax` NULL lọt xuống OK (so sánh NULL = UNKNOWN).
+- (c) `REVIEW: 2nd month is a full month` — dòng 01/03–30/04 là chu kỳ 2 tháng thật, không phải gộp (gộp chỉ khi tháng cuối lẻ ngày); bản cũ sẽ tách nhầm.
+- (d) Dòng mới: `TransactionDate`/`DocumentDate` = ngày 1 tháng sau nếu dòng gốc đang = `ScheduleDate` (bản cũ copy nguyên ngày tháng đầu).
+
 ## GIẢ THUYẾT chưa chốt
-- Phạm vi thật (bao nhiêu debtor/dòng còn gộp) — chưa chạy quét.
+- Train: bao nhiêu dòng OK / SKIP / REVIEW — chờ preview.
 - Có dòng chịu thuế (GST) không — nếu có phải bổ sung tính `TaxAmt` (cần code tính tax trong `RtContractSum`).
 - A&P renewal (charge 5508) bill chu kỳ 29→28: là setup, không phải lỗi gộp — script không đụng; nếu consultant muốn theo tháng dương lịch thì là việc sửa setup riêng.
 
@@ -51,6 +63,10 @@ ORDER BY CrossMonthRows DESC;
 - Báo consultant khi có danh sách: tổng tiền tăng sau tách; dòng đã post AR bị SKIP (cần hướng xử lý riêng); dòng có thuế (nếu có).
 
 ## Bước tiếp theo
-1. Chạy query phạm vi (Train hoặc clone Live mới) → xác nhận debtor 2104 không còn trong danh sách, xem số debtor/dòng, số dòng đã post.
-2. Chạy script với `@Commit = 0` → xem bảng tổng hợp theo Status + danh sách chi tiết OK/SKIP/REVIEW.
+1. ~~Chạy query phạm vi~~ — xong 20/11 (Live sạch, Train 16+2 debtor).
+2. Chạy script rev với `@Commit = 0` trên **Train** (kiểm debtor 2104 có trong OK không — nếu có, hỏi consultant) → xem bảng tổng hợp theo Status + danh sách chi tiết OK/SKIP/REVIEW.
 3. Gửi consultant danh sách + lưu ý tổng tiền tăng → được đồng ý thì chạy `@Commit = 1` trên Train, test màn Bill Schedule, rồi Live.
+
+## Đóng 20/11/2026
+- Live sạch (0 dòng Active vắt qua tháng, toàn bộ đã Inactive do sinh lại) → không patch Live.
+- Consultant không yêu cầu patch Train → đóng ticket, không chạy script. Nếu sau này cần patch Train: chạy `work/LKHS-332/LKHS-332_Split_BillSchedule_CrossMonth.sql` với `@Commit = 0` trước (bước 2–3 ở trên).
