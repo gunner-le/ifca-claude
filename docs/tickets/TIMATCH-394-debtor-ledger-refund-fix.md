@@ -195,3 +195,48 @@ Khi kiểm tra 1 case thật bên FPARK (debtor LYN FAMILY HOUSE, company FPL �
 Toàn bộ phần điều tra + fix cho case FPARK được ghi chi tiết ở **`FPARK-166-debtor-ledger-exclude-deposit-advance.md`** (ticket gốc). Cùng 1 hướng fix (thêm 1 block UNION ALL lấy trực tiếp từ `AR_Allocation` cho các receipt Deposit/Advance chưa có contra) nhiều khả năng cũng áp dụng được cho TIMATCH (để xử lý luôn 2 case LSB và scope rộng hơn nếu có) — NHƯNG CHƯA chạy scope check riêng cho TIMATCH để xác nhận, nên chưa áp dụng bên TIMATCH. Việc này để ngỏ, làm sau khi fix FPARK-166 xong và có thời gian.
 
 **Trạng thái:** Case LSB (TIMATCH) xác nhận cùng root cause với FPARK-166 nhưng CHƯA fix/CHƯA chạy scope check riêng cho TIMATCH. Xem tiến độ fix tại `FPARK-166-debtor-ledger-exclude-deposit-advance.md`.
+
+---
+
+## Vòng 7 (2026-11-19) — Julia: report mới phải giữ y bản chuẩn cho chứng từ Voided (ĐANG DỞ — tạm dừng 2026-11-20)
+
+### Thông tin report (đã tra `Sys_Report` trên DB local `TIMATCH_LIVE`)
+| | Report mới | Report chuẩn |
+|---|---|---|
+| ReportNo | `401_TIMATCH` | `401` (Rental), thêm `66`/`532` (MCorp) |
+| ReportNameStringCode | `Rpt_Mcorp_DebtorLedgerReport_TIMATCH` | `Rpt_Mcorp_DebtorLedgerReport` |
+| ReportFileName | `MC_DebtorInforTotalTwo_TIMATCH` (trên SSRS, không có .rdl trong source) | `MC_DebtorInforTotalTwo` |
+| ReadTable | `View_Report_DebtorLedgerReport_TIMATCH` | `view_Report_DebtorLedgerReport` |
+
+### Feedback Julia
+Cặp `KSB/IV/00002159` (BillID 10343/10344, Voided, từ `MC_BillSchedule`, 2,135) ↔ `KSB/CN/00000408` (BillID 29291/29292, Voided, auto reversal, `RefTable='AR_Trx'`) hiện trên Debtor Ledger chuẩn nhưng không hiện trên report mới. Ý Julia: report mới lấy script chuẩn, chỉ được sửa 3 chỗ (loại Deposit, loại Advance→Refund, hiện Advance→Invoice), phần còn lại giữ như chuẩn.
+
+### Đã CHỐT (có data)
+- View TIMATCH trên server (`TIMATCH_LIVE`, modify_date **2026-10-15 21:16**) đã mang fix Voided của FPARK-166: block 1 `RecordStatus = 'Active'`, block 3 comment bỏ `LEFT JOIN VoidInfo` → lệch bản chuẩn, ẩn cặp IV/CN trên.
+- Bản server cũng có block Advance→Invoice (`AR_Allocation`, loại `RT.Deposit`/`RT.DestineEarnest`) — đúng yêu cầu, giữ nguyên.
+- **Julia chọn A = theo bản chuẩn** (hiện cặp Voided auto reversal). Đã báo Julia: điều này đảo lại yêu cầu cũ FPARK-166 vấn đề (2) (CM Voided `FPL/CM000255` x2, `FPL/CM000574` sẽ hiện lại ở FPARK). Balance không đổi (cặp Voided net 0).
+- Gunner đã kéo view server về local rồi áp **revert 2 chỗ** trên DB local `TIMATCH_LIVE` (block 1 về `RecordStatus in ('Active','Voided')`; block 3 khôi phục `LEFT JOIN VoidInfo` + `AND ((T3.RecordStatus = 'Voided' AND VoidInfo.IBillID IS NOT NULL) OR T3.RecordStatus = 'Active')`, comment `-- TIMATCH-394`, dòng cũ giữ dạng comment). Chép đúng từng chữ từ view chuẩn.
+- Test local: cặp IV/CN hiện đủ 4 dòng như chuẩn → PASS.
+
+### Lỗi mới phát hiện — có sẵn trong CẢ view chuẩn
+- Chuỗi void nhiều tầng IV Voided → CN Voided → DN Voided: `LEFT JOIN VoidInfo ON T3.BillID = VBillID OR T3.BillID = IBillID ...` khớp 2 lần → CN in 2 lần.
+- Case: debtor 4433 NBIOTEK (M) SDN BHD, `KSB/IV/00004120` → `KSB/CN/00000130` → `KSB/DN/00000039/40`; CN/130 ra 4 dòng (440) thay vì 2 → lệch **RM220**. View chuẩn ra y hệt.
+- Quy mô DB local: 2 BillID / 1 debtor / 220 (server có thể nhiều hơn).
+- Kiểm chứng fix: block 3 logic cũ 954 dòng/952 BillID/−587,738.40 → logic `EXISTS` 952/952/−587,518.40 — không mất/thêm chứng từ, chỉ bỏ đúng 2 dòng nhân đôi.
+- Lưu ý test: query tổng Voided phải lọc theo `BillID`, không theo `DocumentNo` (lọc DocumentNo kéo nhầm dòng Active của invoice nhiều dòng → 2 case +170 giả ở debtor 4552, 4532).
+- Fix đề xuất (CHƯA áp, chờ Julia): bỏ `LEFT JOIN VoidInfo` (comment lại), thay điều kiện cuối block 3 bằng
+  `AND (T3.RecordStatus = 'Active' OR (T3.RecordStatus = 'Voided' AND (EXISTS (SELECT 1 FROM dbo.AR_Trx Inv WHERE Inv.BillID = T3.RefRecordID AND Inv.RecordStatus = 'Voided') OR EXISTS (SELECT 1 FROM dbo.AR_Trx Rev WHERE Rev.RefRecordID = T3.BillID AND Rev.RefTable = 'AR_Trx' AND Rev.RecordStatus = 'Voided'))))  -- TIMATCH-394`
+  Bản find→replace đầy đủ nằm trong lịch sử phiên `59c5aab6-d224-4e1e-b785-808446f64050` (19/11).
+
+### File làm việc (`work\TIMATCH-394\`)
+`view_Standard.sql` (view chuẩn), `view_TIMATCH_current.sql` (local trước 19/11, bản 06/10), `view_TIMATCH_server_20261015.sql` (đầu bản server), `view_TIMATCH_local_now.sql` (local sau khi kéo bản server về), `view_TIMATCH_local_after.sql` (local sau revert).
+
+TFS Live: chưa so `View_Report_DebtorLedgerReport_TIMATCH` / `view_Report_DebtorLedgerReport` với TFS (chỉ so với view chuẩn trong DB).
+
+### Việc còn mở / bước tiếp theo
+1. Áp revert 2 chỗ lên **server** — chưa xác nhận đã áp; chưa trả lời câu hỏi `TIMATCH_LIVE` trên server là Train hay Live production (nếu Live → áp Train trước).
+2. Gửi Julia tin case NBIOTEK (RM220), chờ Julia chọn: sửa trong report mới (áp bản `EXISTS`) hay giữ như chuẩn.
+3. Hỏi Stanley có sửa view chuẩn `view_Report_DebtorLedgerReport` trên TFS không (bug sản phẩm).
+4. FPARK-166: revert tương tự theo lựa chọn A (chưa làm, làm sau TIMATCH).
+5. Các việc mở cũ: vòng 6 scope check TIMATCH (Advance thiếu contra — bản server 15/10 đã có block Advance, cần xác nhận lại case LSB `LSB/OR/00000015`, `00000027`), block `View_MC_ApJournal_VoidRefund` còn logic `Remark` cũ.
+6. Chờ Gunner note phản hồi mới của Julia (2026-11-20).
