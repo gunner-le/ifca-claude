@@ -245,3 +245,9 @@ TFS Live: chưa so `View_Report_DebtorLedgerReport_TIMATCH` / `view_Report_Debto
 4. FPARK-166: revert tương tự theo lựa chọn A (chưa làm, làm sau TIMATCH).
 5. Các việc mở cũ: vòng 6 scope check TIMATCH (Advance thiếu contra — bản server 15/10 đã có block Advance, cần xác nhận lại case LSB `LSB/OR/00000015`, `00000027`), block `View_MC_ApJournal_VoidRefund` còn logic `Remark` cũ.
 6. Chờ Gunner note phản hồi mới của Julia (2026-11-20).
+
+## Changeset TFS — TIMATCH-443 (tách từ vòng 8)
+
+| Nhánh | Changeset | Ngày | File/object | Ghi chú |
+|---|---|---|---|---|
+| `Dev\BRANCHES\NET4.0_REL` | 99606 | 2026-11-20 | View `View_Report_DebtorLedgerReport_TIMATCH` + config filter `401_TIMATCH` | Fix CN Voided nhân đôi (EXISTS) + filter Record Status |
