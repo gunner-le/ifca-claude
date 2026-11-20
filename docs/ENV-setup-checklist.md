@@ -25,6 +25,14 @@ foreach (RenderingExtension extension in ReportViewer1.ServerReport.ListRenderin
 
 Nếu restart vẫn không được: kiểm tra account trên URL reservation (`netsh http show urlacl url=http://+:80/ReportServer/`) có khớp account chạy service (`sc qc <service>` → `SERVICE_START_NAME`) không, và xem log `ReportServerService_*.log`.
 
+### 1b. Biến thể: in report ra **trang trắng**, 503 nằm ở **FileServer** (không phải SSRS) — PLBPG-62, 2026-11-20
+
+**Triệu chứng:** bấm in (vd AR invoice qua `CashFlow/ACPaymentListPrint.aspx?ReportName=...`) → trang trắng, Console chỉ báo `Uncaught SyntaxError: Invalid or unexpected token` ở 1 dòng của HTML render (không bấm vào được). Xem bằng View page source / tab Network > Response thấy `alert('System.Net.WebException: ... HTTP status 503 ... FileServecies.Service1.UploadFile ... DocumentLibrary.UploadFile ... RdlCommControl.ascx.cs:line 191')`.
+
+**Cơ chế:** `RdlCommControl.Page_Load` sau khi set parameter sẽ render thêm 1 bản Excel (`Render("EXCELOPENXML")`, dòng ~186 — bước này OK nghĩa là RDL/dataset chạy được) rồi upload vào "System Documents/Report History" qua File Service (`appSettings FileServecies.Url`, local thường `http://localhost/fileserver/File.asmx`). Upload lỗi → `catch` nhét stack trace nhiều dòng vào `alert('...')` không escape → hỏng JS → trang trắng.
+
+**Fix:** bật lại site/App Pool `fileserver` trong IIS (bị tắt / pool Stopped). Kiểm tra nhanh: mở `FileServecies.Url` trên trình duyệt phải ra trang asmx. Không phải lỗi report, không cần sửa code.
+
 ## 2. Report báo `rsAccessDenied` cho `IIS APPPOOL\<AppPool>`
 
 **Triệu chứng (sau khi SSRS đã chạy):**
