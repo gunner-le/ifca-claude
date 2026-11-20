@@ -5,6 +5,8 @@ REM  Mo Claude Code cho IFCA: thu muc kien thuc + source client
 REM    ifca.bat                  -> menu chon client
 REM    ifca.bat LKHS_Train       -> mo thang 1 client
 REM    ifca.bat LKHS_Train LKHS  -> mo nhieu thu muc
+REM  Sau khi chon client: Enter = phien moi, 1 = tiep tuc phien gan nhat,
+REM  2 = chon phien cu tu danh sach (lich su chat khong mat khi tat cmd)
 REM ============================================================
 set "ROOT=E:\IFCA Software"
 set "KB=%~dp0"
@@ -81,12 +83,25 @@ shift
 goto :loop
 
 :run
+REM --- Chon phien: moi / tiep tuc phien gan nhat / chon phien cu ---
+echo.
+echo  Phien lam viec:
+echo   [Enter] Phien moi
+echo   1. Tiep tuc phien gan nhat
+echo   2. Chon phien cu de tiep tuc (danh sach)
+echo.
+set "M="
+set "MODE="
+set /p "M= Nhap so: "
+if "%M%"=="1" set "MODE=--continue"
+if "%M%"=="2" set "MODE=--resume"
+
 cd /d "%KB%"
 echo.
 echo  Thu muc kien thuc: %KB%
-echo  Lenh: "!CLAUDE!" !DIRS!
+echo  Lenh: "!CLAUDE!" !MODE! !DIRS!
 echo.
-call "!CLAUDE!" !DIRS!
+call "!CLAUDE!" !MODE! !DIRS!
 echo.
 echo  Claude Code da thoat (ma loi %errorlevel%).
 pause
