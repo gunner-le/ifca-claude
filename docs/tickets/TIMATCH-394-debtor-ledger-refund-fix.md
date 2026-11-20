@@ -222,6 +222,7 @@ Cặp `KSB/IV/00002159` (BillID 10343/10344, Voided, từ `MC_BillSchedule`, 2,1
 - Chuỗi void nhiều tầng IV Voided → CN Voided → DN Voided: `LEFT JOIN VoidInfo ON T3.BillID = VBillID OR T3.BillID = IBillID ...` khớp 2 lần → CN in 2 lần.
 - Case: debtor 4433 NBIOTEK (M) SDN BHD, `KSB/IV/00004120` → `KSB/CN/00000130` → `KSB/DN/00000039/40`; CN/130 ra 4 dòng (440) thay vì 2 → lệch **RM220**. View chuẩn ra y hệt.
 - Quy mô DB local: 2 BillID / 1 debtor / 220 (server có thể nhiều hơn).
+- **Xác nhận bằng data + GL (2026-11-20, DB clone Live mới trên server):** chuỗi IV 17950/17951 → CN 19104/19105 (RefRecordID → IV) → DN 19798/19799 (RefRecordID → CN), cả 6 Voided. `GL_Voucher` (RefTable='AR_Trx') tài khoản Receivable `AccountCodeID 7906`: IV Dr 220, CN Cr 220, DN Dr 220 → **GL net +220**. Report hiện tại (CN x2) ra 0 → lệch GL 220; fix `EXISTS` ra +220 = khớp GL. Aging bỏ Voided → 0 → chuỗi void-của-void này làm Aging ≠ GL thật 220 (chế độ filter Active khớp Aging, All khớp GL).
 - Kiểm chứng fix: block 3 logic cũ 954 dòng/952 BillID/−587,738.40 → logic `EXISTS` 952/952/−587,518.40 — không mất/thêm chứng từ, chỉ bỏ đúng 2 dòng nhân đôi.
 - Lưu ý test: query tổng Voided phải lọc theo `BillID`, không theo `DocumentNo` (lọc DocumentNo kéo nhầm dòng Active của invoice nhiều dòng → 2 case +170 giả ở debtor 4552, 4532).
 - Fix đề xuất (CHƯA áp, chờ Julia): bỏ `LEFT JOIN VoidInfo` (comment lại), thay điều kiện cuối block 3 bằng
@@ -234,7 +235,11 @@ Cặp `KSB/IV/00002159` (BillID 10343/10344, Voided, từ `MC_BillSchedule`, 2,1
 TFS Live: chưa so `View_Report_DebtorLedgerReport_TIMATCH` / `view_Report_DebtorLedgerReport` với TFS (chỉ so với view chuẩn trong DB).
 
 ### Việc còn mở / bước tiếp theo
-1. Áp revert 2 chỗ lên **server** — chưa xác nhận đã áp; chưa trả lời câu hỏi `TIMATCH_LIVE` trên server là Train hay Live production (nếu Live → áp Train trước).
+1. ~~Áp revert 2 chỗ lên server~~ — ĐÃ ÁP (Gunner xác nhận 2026-11-20), đang chạy Live Testing. Gunner đã clone DB Live mới nhất (20/11) về máy để fix/test vòng 8.
+1e. **Vòng 8 (fix EXISTS + filter Record Status) đã tách sang Jira mới TIMATCH-443** (Julia tạo theo đề nghị Gunner, 2026-11-20). Changeset/note Jira của 2 phần này ghi theo TIMATCH-443 (comment JiraID trong view/script hiện đang ghi `TIMATCH-394` — khi áp Train/Live đổi thành `TIMATCH-443`).
+1d. **Trạng thái 2026-11-20: Gunner đã áp lên Live Testing** (view: A + B dạng CASE; config `work\TIMATCH-394\Config_401_TIMATCH_RecordStatus.sql` — Sys_ReportFilter `401_TIMATCH`/`RecordStatus` L, RelationFld=RecordStatus theo mẫu DebtorAcct + CF_String "Record Status") → **chờ Julia test UI**. Julia OK → áp Train/Live theo danh sách đoạn thay đổi (không chạy nguyên file), viết note Jira, hỏi Stanley sửa view chuẩn. Báo Julia: NBIOTEK GL còn nợ 220 mà Aging = 0 (data void-chồng-void).
+1c. Vòng 8 test trên DB clone (2026-11-20): fix `EXISTS` (A) đã áp → chuỗi NBIOTEK IV +220 (2 dòng) / CN −220 (2 dòng) / DN/39, DN/40 +110 mỗi cái → PASS. Đã thêm cột `RecordStatus` (B) vào 7 block; view trả ra 4 giá trị: Active 30,443 dòng (AR_Trx), Verified 17,850 (Receipt), Approved 132 (AP Journal refund), Voided 1,037 (net +120) → filter không thể lọc thẳng `='Active'` (mất Receipt/Refund) → gom thành Active/Voided bằng CASE.
+1b. Vòng 8 (2026-11-20) Julia phản hồi: (a) `KSB/CN/00000130` hiện 4 dòng = đúng case NBIOTEK RM220 → áp fix `EXISTS`; (b) xin thêm filter `RecordStatus` (Active → khớp Aging; All → khớp GL), lý do: IV Voided ngày 2027 còn CN reversal ngày 2026 → ledger lệch Aging. Cần: thêm cột `RecordStatus` vào 6 block view + 1 dòng `Sys_ReportFilter` (`401_TIMATCH`) + sửa RDL `MC_DebtorInforTotalTwo_TIMATCH` (lấy từ SSRS).
 2. Gửi Julia tin case NBIOTEK (RM220), chờ Julia chọn: sửa trong report mới (áp bản `EXISTS`) hay giữ như chuẩn.
 3. Hỏi Stanley có sửa view chuẩn `view_Report_DebtorLedgerReport` trên TFS không (bug sản phẩm).
 4. FPARK-166: revert tương tự theo lựa chọn A (chưa làm, làm sau TIMATCH).
