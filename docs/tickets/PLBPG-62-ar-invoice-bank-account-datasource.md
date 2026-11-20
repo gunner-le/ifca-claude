@@ -111,7 +111,7 @@ Company chưa có BankCode trong list → chỉ in tên company.
 
 | Nhánh | Changeset | Ngày | File/object | Ghi chú |
 |---|---|---|---|---|
-| (chưa ghi nhánh) | 99624 | 2026-11-20 | `AR_DebtorInvoice_PLBPG.rdl` (+ script `CF_Parameter_AR_DebtorInvoice_PLBPG_Bank.sql`?) | v2: footer bank theo company qua CF_Parameter `AR_DebtorInvoice_PLBPG_Bank_*` |
+| `Dev\BRANCHES\NET4.0_REL` | 99624 | 2026-11-20 | `AR_DebtorInvoice_PLBPG.rdl` (+ script `CF_Parameter_AR_DebtorInvoice_PLBPG_Bank.sql`?) | v2: footer bank theo company qua CF_Parameter `AR_DebtorInvoice_PLBPG_Bank_*` |
 
 ## Jira note (English) — v2 (dùng bản này)
 
