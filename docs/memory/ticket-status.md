@@ -57,8 +57,8 @@
 ### LKHS-337 — PM Debtor Aging Summary by Trx Date Owing sai (FIXED Train 19/11, test OK)
 - RDL `PM_DebtorAgingSumByTrxDate` nhánh SG: Owing trừ UnallocedAmt (âm) → đổi 9 chỗ `- Fields!UnallocedAmt.Value` → `+`. TFS Dev `NET4.0_SG` = Changeset 99594. Còn: áp Live (tải RDL Live về kiểm trước), TFS Rel `IFCA.NET 4.0_SG`. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
 
-### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (FIXED Train 19/11, chờ consultant)
-- Fix config `Sys_ReportFilter` EN275 (DocumentDate FldRange 0→2 + FldNeed Y, TransactionDate Inactive). Còn: áp Live (SELECT kiểm trước), hỏi Stanley fix Standard (TIMATCH cùng config), đổi label "Doc" (tuỳ chọn). Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
+### LKHS-336 — PM Debtor Aging Detail by Doc Date mất receipt (ĐÓNG 20/11 — consultant OK, đã áp Live)
+- Fix config `Sys_ReportFilter` EN275 (DocumentDate FldRange 0→2 + FldNeed Y, TransactionDate Inactive). Còn: hỏi Stanley fix Standard (TIMATCH cùng config), đổi label "Doc" (tuỳ chọn). Chi tiết `docs/tickets/LKHS-336-pm-debtor-aging-docdate-filter.md`.
 
 ### LKHS-298 — Other Debtor SOA hiện AllocDate thay DocumentDate (FIXED, chờ consultant)
 - Report "Other Debtor Statement of Account" (LKHS, OR > Reporting). SP chính `AR_OtherDebtorAccountStatement2` (@CompanyID, @Language, @QueryCriteria) đúng — không phải nguồn lỗi.

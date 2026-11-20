@@ -2,7 +2,7 @@
 
 - **Client:** LKHS (Singapore, sửa thẳng Standard). Test trên LKHS Train, CompanyID 182, debtor `TEST-001`.
 - **Menu:** CSM (module PM — Construction) > Reporting > Debtor Aging Detail by Doc Date.
-- **Trạng thái (19/11/2026):** Root cause đã xác nhận, fix config đã áp + test PASS trên LKHS Train. Chờ consultant phản hồi, sau đó áp Live.
+- **Trạng thái: ĐÓNG (20/11/2026).** Fix config áp + test PASS Train (19/11), consultant test OK Train, Gunner đã áp Live (20/11).
 - Tài liệu consultant: `CSM Aging Reports.xlsx` (tab by doc date / by trx date — chỉ ảnh chụp report). Bản copy SP + Excel ở `work\LKHS-336\` (không commit).
 
 ## Bối cảnh
@@ -66,7 +66,7 @@ WHERE theo `ReportNo + FldName` (không dùng ReportFilterID vì có thể khác
 
 ## Còn mở / rủi ro
 
-- Áp Live LKHS (SELECT kiểm tra trước) sau khi consultant OK.
+- ~~Áp Live LKHS~~ — đã áp 20/11 sau khi consultant OK.
 - Bug Standard: hỏi Stanley có đưa fix vào Update Script cho mọi client không (TIMATCH cùng config). Nếu SP client khác khác bản LKHS thì cần so trước.
 - Label "Doc" (`CF_String` `Sys.ReportFilter_EN275_DocumentDate`) khó hiểu — có thể đổi thành "As At (Doc Date)" (chưa làm).
 - Ngoài phạm vi: Aging **Summary by Trx Date** ra Owing 1,820 (lẽ ra 180 — RDL trừ Unallocated âm) → đã xử lý ở LKHS-337; EN361 có 5 dòng filter `TransactionDate` trùng.
@@ -79,6 +79,6 @@ WHERE theo `ReportNo + FldName` (không dùng ReportFilterID vì có thể khác
 
 ## Jira note
 
-**[Tech]** Root Cause: EN275 (PM Debtor Aging Detail by Doc Date) and EN291 (by Trx Date) use the same SP `PMDebtorAgingDetail`, which reads the As At date from the criteria string `DocumentDate<=`. In the standard `Sys_ReportFilter` setup, EN275's "Doc" As At filter has FldRange=0, which builds `DocumentDate='...'`, and a TransactionDate range filter is also active. Either way the SP gets no As At date, so receipts are filtered out (invoices still show). EN291 is set up correctly (As At FldRange=2, other date filter inactive). Fix: updated `Sys_ReportFilter` for EN275: DocumentDate FldRange 0→2 and mandatory, TransactionDate filter set to Inactive. No SP change. Status: tested OK in LKHS Train (TEST-001, As At 19/11/2026: receipt LKHS/CM/COR/27-0009 shows Unallocated -820, Owing 180, matching the Trx Date report), pending consultant confirmation and Live.
+**[Tech]** Root Cause: EN275 (PM Debtor Aging Detail by Doc Date) and EN291 (by Trx Date) use the same SP `PMDebtorAgingDetail`, which reads the As At date from the criteria string `DocumentDate<=`. In the standard `Sys_ReportFilter` setup, EN275's "Doc" As At filter has FldRange=0, which builds `DocumentDate='...'`, and a TransactionDate range filter is also active. Either way the SP gets no As At date, so receipts are filtered out (invoices still show). EN291 is set up correctly (As At FldRange=2, other date filter inactive). Fix: updated `Sys_ReportFilter` for EN275: DocumentDate FldRange 0→2 and mandatory, TransactionDate filter set to Inactive. No SP change. Status: tested OK in LKHS Train (TEST-001, As At 19/11/2026: receipt LKHS/CM/COR/27-0009 shows Unallocated -820, Owing 180, matching the Trx Date report), confirmed by consultant and applied to Live.
 
-**[Non-tech]** Root Cause: The date filter on the Debtor Aging Detail by Doc Date report was set up wrongly, so the report could not read the "As At" date and left out receipts. Fix: We corrected the report filter. The screen now has one mandatory "Doc" As At date, and the Transaction Date range was removed as it does not apply to this report. Status: Tested OK in Train (client TEST-001 now shows receipt LKHS/CM/COR/27-0009 correctly, same as the Transaction Date report). Will apply to Live after confirmation.
+**[Non-tech]** Root Cause: The date filter on the Debtor Aging Detail by Doc Date report was set up wrongly, so the report could not read the "As At" date and left out receipts. Fix: We corrected the report filter. The screen now has one mandatory "Doc" As At date, and the Transaction Date range was removed as it does not apply to this report. Status: Tested OK in Train (client TEST-001 now shows receipt LKHS/CM/COR/27-0009 correctly, same as the Transaction Date report). Confirmed by consultant and applied to Live.
