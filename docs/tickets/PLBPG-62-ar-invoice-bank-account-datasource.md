@@ -137,6 +137,7 @@ Company chưa có BankCode trong list → chỉ in tên company.
 | Nhánh | Changeset | Ngày | File/object | Ghi chú |
 |---|---|---|---|---|
 | `Dev\BRANCHES\NET4.0_REL` | 99624 | 2026-11-20 | `AR_DebtorInvoice_PLBPG.rdl` (+ script `CF_Parameter_AR_DebtorInvoice_PLBPG_Bank.sql`?) | v2: footer bank theo company qua CF_Parameter `AR_DebtorInvoice_PLBPG_Bank_*` |
+| `Rel\IFCA.NET 4.0` | 99653 | 2026-11-23 | `AR_DebtorInvoice_PLBPG.rdl` | Rel (Live) — bản sau khi consultant + KH OK trên Train |
 
 ## Jira note (English) — v3 (dùng bản này)
 
