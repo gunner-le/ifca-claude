@@ -2,7 +2,7 @@
 
 - **Client:** PLBPG (PLB Group, source `PLB_LIVE`). Jira gốc: "Other Receivable - change new format for invoices (Customization)" — Gunner đã làm xong mẫu mới; vòng này là bug consultant báo trên mẫu đó.
 - **Yêu cầu consultant:** "the bank for Phoenix Residence Sdn Bhd is hardcoded to PLB Bank, can help to replace the hardcoded value with datasource?"
-- **Trạng thái (20/11/2026): FIXED Train — chờ consultant test.** Gunner đã upload RDL lên Report Server + chạy config, in ra đúng tên company; chờ consultant test bank account.
+- **Trạng thái (23/11/2026): ĐÓNG — consultant + khách hàng test OK trên Train (fix v3).** Live: chưa áp (cần upload RDL + chạy script config trên DB Live).
 - File: `work\PLBPG-62\AR_DebtorInvoice_PLBPG.rdl` (bản sửa) + `AR_DebtorInvoice_PLBPG_ORIG.rdl` (bản gốc server, dựng lại bằng reverse edit, khớp 228,313 byte). `work\` không commit.
 
 ## Bối cảnh
@@ -17,7 +17,21 @@
 - Không có chỗ nào trong DB đánh dấu "tài khoản in trên invoice": `CF_BankAccount` không có cờ Default/Print; `CF_Company`/`View_CF_Company` không có cột bank (chỉ `Remark` — không mượn). Mỗi company nhiều bank account (Phoenix: 3 dòng `CIT - …` (inter-company) + `RHB - CA 98098 - PRSB`).
 - `CF_Parameter` không có `CompanyID` (cột: ParameterID identity, Class, ApplicationID, Name, TitleCN, TitleEN, Value nvarchar(500), ValueType, RecordStatus, Create/ModifyUserID NOT NULL, Create/ModifyDate).
 
-## Fix v2 (ĐANG DÙNG — 20/11/2026, thay v1 bên dưới)
+## Fix v3 — đổi format theo user (ĐANG DÙNG — 20/11/2026)
+
+Consultant (Nita) gửi lại format user muốn, Gunner confirm qua chat, Nita "yaya":
+`Phoenix Residences Sdn Bhd. RHB A/C No: 20702800098098` (số liền, không gạch; không dấu chấm cuối).
+Cơ chế giữ nguyên v2, chỉ đổi:
+- Script config: `Value` = `RHB A/C No: 20702800038540` / `…98098` / `…86448` (`_PLD` / `_PRSB` / `_PLBC`).
+- RDL `Textbox593` dòng (2): dấu nối `" - "` → `". "`, bỏ dấu chấm cuối (`".</b>"` → `"</b>"`):
+```vb
+& "(2) All cheques or internet banking should be made payment to<br/><b>" & CStr(First(Fields!CompanyName.Value, "CompanyInfo")) & IIf(IsNothing(First(Fields!BankText.Value, "BankInfo")), "", ". " & CStr(First(Fields!BankText.Value, "BankInfo"))) & "</b>"
+```
+- Consultant xem bản in (20/11): muốn tên company xuống dòng riêng → thêm `<br/>` trước `<b>` (textbox MarkupType HTML, giữa (1) và (2) cũng dùng `<br/>`).
+- Dataset `BankInfo` không đổi. Diff với `_ORIG` vẫn chỉ 2 chỗ (dataset + dòng (2)), CRLF giữ nguyên.
+- Trên Train đã có 3 dòng v2 → chạy lại script (xoá + insert) là đổi Value; upload lại RDL.
+
+## Fix v2 (thay bằng v3 — format; cơ chế vẫn dùng)
 
 Consultant chuyển email user: in theo format từng company
 1. PLB Land Sdn Bhd - RHB Bank Berhad - Acc No: 2-07028-00038540
@@ -99,6 +113,17 @@ Company chưa có BankCode trong list → chỉ in tên company.
 - **Phoenix `AccountNo` = "RHB - CA 98098 - PRSB"** (nhập trùng BankCode, không phải số TK thật) → invoice in "A/C No : RHB - CA 98098 - PRSB". PLB Land nhập đúng (`20702800038540`). Consultant sửa AccountNo ở Cash Management > Cash Book Accounts.
 - Company khác dùng mẫu này: consultant chọn tài khoản → nối BankCode vào `Value`.
 
+## Test v3 (Train, 23/11/2026)
+
+- Lần in đầu trên Train vẫn ra `RHB Bank Berhad - Acc No: 2-07028-00098098` → RDL mới đã lên nhưng script config chưa chạy lại (Value còn v2). Chạy lại script → 3 dòng Value `RHB A/C No: …` đúng.
+- In lại: `(2) … made payment to` / xuống dòng / **`Phoenix Residences Sdn Bhd. RHB A/C No: 20702800098098`**. Consultant + KH confirm OK. **PASS → đóng.**
+
+## Bài học
+
+- Đổi format text in trên report mà text nằm trong config → phải nhắc chạy lại script config cùng lúc upload RDL (report đúng layout nhưng in data cũ dễ tưởng report sai).
+- Text footer cho khách: chốt format chính xác (dấu chấm, gạch nối, số liền/gạch, xuống dòng) với consultant bằng ví dụ in thật trước khi sửa — ticket này đi 3 vòng chỉ vì format.
+- Data `CF_BankAccount` (AccountNo/Name) không sạch → không dùng làm nguồn in; dùng `CF_Parameter` 1 dòng / company, khớp `TitleEN` = CompanyName.
+
 ## Test v2 (20/11/2026)
 
 - Máy Gunner (DB PLB_LIVE local): chạy script config → 3 dòng `_PLD/_PRSB/_PLBC`; upload RDL v2; in invoice → footer đúng format. **PASS.** Tiếp theo: Gunner áp lên Train → consultant test.
@@ -113,14 +138,14 @@ Company chưa có BankCode trong list → chỉ in tên company.
 |---|---|---|---|---|
 | `Dev\BRANCHES\NET4.0_REL` | 99624 | 2026-11-20 | `AR_DebtorInvoice_PLBPG.rdl` (+ script `CF_Parameter_AR_DebtorInvoice_PLBPG_Bank.sql`?) | v2: footer bank theo company qua CF_Parameter `AR_DebtorInvoice_PLBPG_Bank_*` |
 
-## Jira note (English) — v2 (dùng bản này)
+## Jira note (English) — v3 (dùng bản này)
 
-**Tech:** Root Cause: In the customized invoice report `AR_DebtorInvoice_PLBPG`, the payment line in the footer (textbox `Textbox593`) was hardcoded as "PLB Land Sdn Bhd. RHB A/C No : 20702800038540", so every company printed PLB Land's bank account. The bank master (`CF_BankAccount`) cannot be used because the bank name and account no are not stored in the required format. Fix: The payee name now uses `CompanyName` from the existing `CompanyInfo` dataset. A new dataset `BankInfo` reads the bank text from `CF_Parameter` (Name `AR_DebtorInvoice_PLBPG_Bank`, one row per company, `TitleEN` = company name, `Value` = e.g. "RHB Bank Berhad - Acc No: 2-07028-00038540"). Rows are set for PLB Land, Phoenix Residences and PLB Cemerlang. A company without a row prints the company name only. Status: Deployed to Train, pending consultant testing.
+**Tech:** Root Cause: In the customized invoice report `AR_DebtorInvoice_PLBPG`, the payment line in the footer (textbox `Textbox593`) was hardcoded as "PLB Land Sdn Bhd. RHB A/C No : 20702800038540", so every company printed PLB Land's bank account. The bank master (`CF_BankAccount`) cannot be used because the bank name and account no are not stored in the required format. Fix: The payee name now uses `CompanyName` from the existing `CompanyInfo` dataset. A new dataset `BankInfo` reads the bank text from `CF_Parameter` (Name `AR_DebtorInvoice_PLBPG_Bank_<suffix>`, one row per company, `TitleEN` = company name, `Value` = e.g. "RHB A/C No: 20702800038540"). The line prints "<Company Name>. <Value>". Rows are set for PLB Land, Phoenix Residences and PLB Cemerlang. A company without a row prints the company name only. Status: Tested OK on Train by consultant and customer; to be applied to Live (upload report + run config script).
 
-**Non-tech:** Root Cause: The invoice always printed PLB Land's name and bank account in the payment note, for every company. Fix: The invoice now prints the issuing company's own name and bank account, in the format "PLB Land Sdn Bhd - RHB Bank Berhad - Acc No: 2-07028-00038540", for PLB Land, Phoenix Residences and PLB Cemerlang. Other companies print the company name only. To add a company or change an account, please inform IFCA support. Status: Ready on Train for testing.
+**Non-tech:** Root Cause: The invoice always printed PLB Land's name and bank account in the payment note, for every company. Fix: The invoice now prints the issuing company's own name and bank account, in the format "Phoenix Residences Sdn Bhd. RHB A/C No: 20702800098098", for PLB Land, Phoenix Residences and PLB Cemerlang. Other companies print the company name only. To add a company or change an account, please inform IFCA support. Status: Confirmed OK by consultant and customer on Train.
 
 ## Jira note (English) — v1 (đã bỏ)
 
-**Tech:** Root Cause: In the customized invoice report `AR_DebtorInvoice_PLBPG`, the payment line in the footer (textbox `Textbox593`) was hardcoded as "PLB Land Sdn Bhd. RHB A/C No : 20702800038540", so every company printed PLB Land's bank account. Fix: The payee name now uses `CompanyName` from the existing `CompanyInfo` dataset. A new dataset `BankInfo` takes the bank name (`CF_Account.Name`) and `AccountNo` from `CF_BankAccount` of the invoice company, where the `BankCode` is listed in the new parameter `CF_Parameter` `AR_DebtorInvoice_PLBPG_BankCode` (comma separated, one code per company; currently `RHB - CA 98098 - PRSB,RHB - CA 38540 - PLD`). A company with no code in the list prints the company name only. Status: Deployed to Train, pending consultant testing. Note: Phoenix's bank account has Account No "RHB - CA 98098 - PRSB" instead of the real account number.
+**Tech:** Root Cause: In the customized invoice report `AR_DebtorInvoice_PLBPG`, the payment line in the footer (textbox `Textbox593`) was hardcoded as "PLB Land Sdn Bhd. RHB A/C No : 20702800038540", so every company printed PLB Land's bank account. Fix: The payee name now uses `CompanyName` from the existing `CompanyInfo` dataset. A new dataset `BankInfo` takes the bank name (`CF_Account.Name`) and `AccountNo` from `CF_BankAccount` of the invoice company, where the `BankCode` is listed in the new parameter `CF_Parameter` `AR_DebtorInvoice_PLBPG_BankCode` (comma separated, one code per company; currently `RHB - CA 98098 - PRSB,RHB - CA 38540 - PLD`). A company with no code in the list prints the company name only. Status: Tested OK on Train by consultant and customer; to be applied to Live (upload report + run config script). Note: Phoenix's bank account has Account No "RHB - CA 98098 - PRSB" instead of the real account number.
 
-**Non-tech:** Root Cause: The invoice always printed PLB Land's company name and RHB account number in the payment note, for every company. Fix: The invoice now prints the issuing company's own name and its bank account from the system. Which bank account to print for each company is set in one system setting; companies not set yet will print the company name only. Status: Ready on Train for testing. Please update the Account No of Phoenix Residences' RHB account in Cash Book Accounts to the real account number, and tell us the bank account to use for any other company that uses this invoice format.
+**Non-tech:** Root Cause: The invoice always printed PLB Land's company name and RHB account number in the payment note, for every company. Fix: The invoice now prints the issuing company's own name and its bank account from the system. Which bank account to print for each company is set in one system setting; companies not set yet will print the company name only. Status: Confirmed OK by consultant and customer on Train. Please update the Account No of Phoenix Residences' RHB account in Cash Book Accounts to the real account number, and tell us the bank account to use for any other company that uses this invoice format.
