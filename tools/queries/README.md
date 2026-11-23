@@ -1,5 +1,5 @@
 # Thư viện query chẩn đoán IFCA (chỉ SELECT)
-Claude Code: dùng file ở đây thay vì viết lại từ đầu — thay placeholder `<...>`, giữ nguyên tên cột. Chạy theo quy tắc mục "SQL trên máy Gunner" trong CLAUDE.md (hỏi trước, chỉ DB trên máy).
+Claude Code: dùng file ở đây thay vì viết lại từ đầu — thay placeholder `<...>`, giữ nguyên tên cột. Chạy theo quy tắc SQL trong CLAUDE.md (hỏi trước, chỉ DB trên máy; chi tiết ở `docs/claude-code-reference.md` mục "SQL trên máy Gunner").
 | File | Dùng khi |
 |---|---|
 | 01_audit_trace_by_key.sql | Ai/khi nào đổi giá trị 1 bản ghi |

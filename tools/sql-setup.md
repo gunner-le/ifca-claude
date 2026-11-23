@@ -3,7 +3,7 @@
 ## 1. Kiểm tra sqlcmd
 CMD: `sqlcmd -?`  — nếu chưa có: cài "sqlcmd" (Microsoft) hoặc SQL Server Command Line Utilities.
 
-## 2. Kết nối (điền vào CLAUDE.md mục "SQL trên máy Gunner")
+## 2. Kết nối (điền vào `docs/claude-code-reference.md` mục "SQL trên máy Gunner")
 - SQL Server cài trên máy (Windows auth): `sqlcmd -S localhost -E -d <DB> ...`
   (instance có tên: `-S localhost\<TênInstance>`)
 - Docker SQL 2025 (port 1434): `sqlcmd -S localhost,1434 -U <login> -d <DB> ...`
