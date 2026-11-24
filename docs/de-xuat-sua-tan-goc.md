@@ -29,6 +29,11 @@
 - Ticket: SWCHENGLING-66/72, NAIMCAP-972, ASPENPG-654, ASPENPG-671/684 (ngược lại: cần in sale Return).
 - Đề xuất: thống nhất 1 điều kiện chuẩn trong view letter dùng chung, có tham số cho trường hợp cần in sale Return.
 
+## 7. `alert('{0}')` không escape message lỗi → report trắng trang
+- Ticket: PLBPG-62 (FileServer 503), SWHARTANAH-358 (tên employee có `'` → SQL lỗi trong FileServer).
+- `Common/RdlCommControl.ascx.cs` catch khối Report History (và các `alert('" + ex.Message + "')`) nhét message thô vào JS → dấu `'`/xuống dòng làm vỡ script, user chỉ thấy trang trắng dù report đã render.
+- Đề xuất: dùng `HttpUtility.JavaScriptStringEncode(ex.Message)` ở mọi chỗ `RegisterStartupScript` + `alert`; FileServer `GetFolderIdByPath` dùng parameter thay vì ghép chuỗi. (Nhánh Dev đã bỏ khối upload Report History — có thể chỉ cần deploy bản mới.)
+
 ---
 ## Draft gửi Stanley (EN, ngắn — Gunner chỉnh trước khi gửi)
 Hi Stanley, while fixing recent tickets I noticed a few issues keep coming back across clients. Could we consider fixing them once in the standard version?

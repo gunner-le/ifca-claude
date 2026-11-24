@@ -73,3 +73,8 @@
 
 - Trước khi nghi quyền Company/Unit: so **Criteria** (dòng đỏ cuối report) + `ReportDefineID` trên URL của 2 login. Mỗi user lưu filter riêng; TIMATCH-443 `KSB/CN/00000132`: 1 login lọc TRANSACTIONDATE, 1 login lọc DOCUMENTDATE → chứng từ có TransactionDate = ngày sửa (sau khoảng lọc) bị loại. Xin screenshot report của cả 2 login.
 - Lọc refund trên Debtor Ledger theo nguồn: xét cả 2 đường `AR_Allocation.ReceiptID` (receipt) và `AR_Allocation.AdjustmentID` (CN) — chỉ xét receipt `MC_Fee` sẽ bỏ sót refund của CN (Rental Rebate).
+
+## Report trắng trang + SyntaxError (PLBPG-62, SWHARTANAH-358)
+
+- View page source → tìm `alert(` → đọc stack trace thật trước khi nghi RDL/SP. Report thường đã render (`TotalPages`), chỉ JS vỡ do message không escape.
+- Lỗi chỉ 1 user → nghi dữ liệu riêng của user (tên employee có `'`) bị ghép chuỗi SQL/JS. `RdlCommControl` dùng `SysContext.CurrentEmpName` (tên employee, không phải login) trong path Report History.
