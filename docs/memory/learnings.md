@@ -78,3 +78,8 @@
 
 - View page source → tìm `alert(` → đọc stack trace thật trước khi nghi RDL/SP. Report thường đã render (`TotalPages`), chỉ JS vỡ do message không escape.
 - Lỗi chỉ 1 user → nghi dữ liệu riêng của user (tên employee có `'`) bị ghép chuỗi SQL/JS. `RdlCommControl` dùng `SysContext.CurrentEmpName` (tên employee, không phải login) trong path Report History.
+
+## Report filter / deploy (LKHS-274)
+
+- Ô `Sys_ReportFilter` đổi `FldType` S → L (dropdown) thì criteria đổi từ `FLD LIKE '%..%'` sang `FLD='..'`. SP parse bằng `CHARINDEX('FLD LIKE ', @QueryCriteria)` sẽ âm thầm bỏ filter → report ra hết. Đối chiếu dòng CRITERIA đỏ với chuỗi CHARINDEX trong SP.
+- Trước khi chạy file `.sql` deploy SP: kiểm dòng `USE` đầu file. Verify sau deploy bằng `sys.objects.modify_date` + đếm dấu JiraID trong `sys.sql_modules.definition`. Consultant restore DB Live xuống môi trường test → fix chỉ có ở Train/Live Testing bị mất.
