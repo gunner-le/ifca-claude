@@ -68,3 +68,8 @@
 - `SysCode.ToString()` trả "" (không exception) = không có dòng Number Structure trong `View_CF_DocCode` cho DocCode đó ở company đã resolve. Fix qua System Setup > Number Structure (`/System/SysAutoCodeAM.aspx`). `DocAnchorType` bị SysCode bỏ qua.
 - Menu Template No = DocCode `017` (module Common), luôn anchor SystemOwner trong `SysMenuTemplateAM.aspx.cs`; setup: Serial, length 8, pad 0, fixed Yes (`0000000x`).
 - Popup chỉ hiện "undefined": kiểm tra `sys_error()` gọi đủ 2 tham số `(title, message)`.
+
+## Report "user không thấy chứng từ" (TIMATCH-443)
+
+- Trước khi nghi quyền Company/Unit: so **Criteria** (dòng đỏ cuối report) + `ReportDefineID` trên URL của 2 login. Mỗi user lưu filter riêng; TIMATCH-443 `KSB/CN/00000132`: 1 login lọc TRANSACTIONDATE, 1 login lọc DOCUMENTDATE → chứng từ có TransactionDate = ngày sửa (sau khoảng lọc) bị loại. Xin screenshot report của cả 2 login.
+- Lọc refund trên Debtor Ledger theo nguồn: xét cả 2 đường `AR_Allocation.ReceiptID` (receipt) và `AR_Allocation.AdjustmentID` (CN) — chỉ xét receipt `MC_Fee` sẽ bỏ sót refund của CN (Rental Rebate).

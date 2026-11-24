@@ -252,3 +252,31 @@ TFS Live: chưa so `View_Report_DebtorLedgerReport_TIMATCH` / `view_Report_Debto
 |---|---|---|---|---|
 | `Dev\BRANCHES\NET4.0_REL` | 99606 | 2026-11-20 | View `View_Report_DebtorLedgerReport_TIMATCH` + config filter `401_TIMATCH` | Fix CN Voided nhân đôi (EXISTS) + filter Record Status |
 | `Rel\IFCA.NET 4.0` | 99615 | 2026-11-20 | View `View_Report_DebtorLedgerReport_TIMATCH` + config filter `401_TIMATCH` | Julia test OK, đã áp Live |
+
+## Reopen 2026-11-23 — TIMATCH-443: refund từ CN không hiện trên Ledger
+
+**Bối cảnh:** sau deploy 443, Julia gửi list của Hijrah (không reconcile được AR vs GL). Quyết định làm trong 443, không mở Jira mới.
+
+**Đã chốt từ list Hijrah (data Live):**
+- Allocation bị void không bị xoá, vẫn ở `AR_Allocation` với `RecordStatus='InActive'` (CN/130: 2 dòng 110, AdjustmentID 19104/19105 → BillID 17950/17951).
+- `KSB/CN/00000130` x2 — đã fix ở 443 gốc.
+- `KSB/CN/00000132` — KHÔNG void (Active, Approved, OB -678, user 262 sửa 19/11/2026). Hijrah không thấy = GIẢ THUYẾT workflow/quyền, chờ Julia.
+
+**Root cause (đã xác nhận):** `KSB/RF/00000184, 250, 251` (Approved, `PayableType=MCAdjustmentRefund`) là refund của CN Rental Rebate `KSB/CN/00000414/442/443` (ItemCode `OtherFee`, nối qua `AR_Allocation.AdjustmentID` → `RefundID`, ReceiptID NULL). Block Debit `FROM dbo.View_MC_ApJournal AS T4` (vòng 5 TIMATCH-394) chỉ nhận refund có `EXISTS AR_Allocation → CB_Receipt ReceiptType='MC_Fee'` → refund từ CN bị loại, CN "treo" Credit trên Ledger. Scope Live: đúng 3 refund, tổng 10,250, không lẫn deposit.
+
+**Fix (view `View_Report_DebtorLedgerReport_TIMATCH`, block T4 đầu tiên trước `UNION ALL`):** thay `AND EXISTS (...MC_Fee...)` bằng `AND ( EXISTS (...MC_Fee...) OR EXISTS (SELECT 1 FROM AR_Allocation aa INNER JOIN AR_Trx adj ON adj.BillID = aa.AdjustmentID INNER JOIN AR_BillItem bi ON bi.BillItemID = adj.BillItemID WHERE aa.RefundID = T4.APJournalID AND bi.ItemCode NOT IN ('RT.Deposit','RT.DestineEarnest')) )`, comment `-- TIMATCH-443`.
+
+**Test Live Testing (2026-11-23) — PASS:** SELECT view lọc 6 chứng từ → mỗi cặp RF Debit = CN Credit: C-1-7/004 RF/250 = CN/442 = 2,350; F-0-4/003 RF/251 = CN/443 = 3,950; I-0-3/003 RF/184 = CN/414 = 3,950 (tổng 10,250), mỗi khách net 0.
+
+**`KSB/CN/00000132` — kết luận (2026-11-24, từ screenshot 2 login):** không phải quyền. Login Hijrah chạy `401_TIMATCH` (ReportDefineID 84312) lọc **TRANSACTIONDATE** 01/01/1900–30/09/2026 → 0 dòng; login Julia (ReportDefineID 83607) lọc **DOCUMENTDATE** cùng khoảng → 1 dòng (OB 678 Credit). CN có DocDate 30/11/2024 nhưng TransactionDate 19/11/2026 (ngày sửa) → bị loại khi lọc theo Transaction Date. Không sửa; Julia OK.
+
+**Kết quả:** Julia OK 2026-11-24 → ĐÓNG. Fix đã check-in 99674 (Dev + Rel).
+
+**Còn mở (ngoài 443):** block `_VoidRefund` chưa xử lý refund-từ-CN bị void (hiện 0 case); NBIOTEK GL 220 vs Aging 0; hỏi Stanley view chuẩn.
+
+**Bài học:** điều kiện lọc refund theo nguồn (receipt MC_Fee) bỏ sót refund có nguồn là CN (AdjustmentID) — khi lọc refund phải xét cả 2 đường nối `AR_Allocation.ReceiptID` và `AR_Allocation.AdjustmentID`.
+
+| Nhánh | Changeset | Ngày | File/object | Ghi chú |
+|---|---|---|---|---|
+| `Dev\BRANCHES\NET4.0_REL` | 99674 | 2026-11-24 | View `View_Report_DebtorLedgerReport_TIMATCH` | Reopen: refund từ CN (Gunner báo 1 changeset cho cả Dev/Rel) |
+| `Rel\IFCA.NET 4.0` | 99674 | 2026-11-24 | View `View_Report_DebtorLedgerReport_TIMATCH` | Reopen: refund từ CN, Julia OK |
