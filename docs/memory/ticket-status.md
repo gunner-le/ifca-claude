@@ -41,6 +41,8 @@
 - Verify với data consultant: CS0147(SA), CA0065(BR), CD0058(BR), CD0059(BR) khớp giữa From-1900 và From-01/09/2025; Creditor Type Closing khớp. Sort theo TransactionDate: sửa ở RDLC (table1_Details_Group sort `=Fields!TransactionDate.Value`), SP đã ORDER BY sẵn.
 - Kỹ thuật debug: clone SP thành `_CHECK`, thay DROP bảng tạm cuối bằng `SELECT * INTO dbo.zz_CarryForward_Debug FROM #CarryForward`; tìm record gây lệch bằng query đối chiếu từng CBPaymentID (DocumentAmt vs tổng AP_Allocation) sort ABS(chênh) DESC.
 - 02/10: Gunner verify OK, "tạm update" — chờ consultant re-test.
+- Changeset: CS Dev SG 98161 (13/09), 98590 (02/10, v10) · Rel SG: chưa (đúng quy trình, chưa lên Live). File TFS Dev SG có 121 dấu `LKHS-274`.
+- **Reopen 20/11/2026 (Valerie, Train_Testing restore từ Live):** CS0147(SA) Creditor Type Closing 01/09/2025–30/06/2026 ≠ 01/01/1900–30/06/2026. Root cause đã xác nhận: KHÔNG phải lỗi logic — SP trên Train_Testing là bản Live cũ (modify 03/08/2026, DefLen 77325, 26 dấu) vì file deploy v10 có dòng 1 `USE [LKHS_Live_Testing]` → lần chạy 20/11 ALTER nhầm Live Testing. 24/11: Gunner bỏ USE, redeploy v10 lên Train_Testing — **chờ Valerie re-test**. Nếu vẫn lệch: verify trước `modify_date`=24/11 & ~121 dấu trên Train_Testing, rồi mới soi data CS0147 / tổng nhóm SA (creditor khác trong SA chưa từng verify). Bài học: mở file deploy kiểm dòng `USE` trước khi chạy.
 - Ưu tiên chung của Gunner: ổn định & đúng data hơn tối đa hiệu năng (vd chỉ bỏ CONVERT() trong WHERE chặn index, thêm clustered index cho bảng tạm; hoãn refactor pre-aggregation rủi ro).
 
 ### LKHS-290/292 — Bank Forex Revaluation thiếu auto-reversal (RESOLVED, chờ rollout)
