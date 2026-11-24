@@ -12,7 +12,10 @@
 | `$/Property/Dev/BRANCHES/NET4.0_SG` | 98161 | 2026-09-13 | `pro_AP_CreditorLedgerDetail_ByTrxDate` | v1–v7 |
 | `$/Property/Dev/BRANCHES/NET4.0_SG` | 98590 | 2026-10-02 | `pro_AP_CreditorLedgerDetail_ByTrxDate` | v8–v10 (121 dấu LKHS-274) |
 | `$/Property/Dev/BRANCHES/NET4.0_SG` | 99689 | 2026-11-24 | `pro_AP_CreditorLedgerDetail_ByTrxDate` | fix filter Supplier Type `SUPPLIERTYPECODE=` |
-| `$/Property/Rel/IFCA.NET 4.0_SG` | chưa | — | SP + RDL | chưa lên Live (đúng quy trình) |
+| `$/Property/Rel/IFCA.NET 4.0_SG` | 99699 | 2026-11-24 | `pro_AP_CreditorLedgerDetail_ByTrxDate` + `AP_CreditorLedgerDetailByTrxDate.rdl` | lên Live |
+
+## Đóng 2026-11-24
+- Consultant (Valerie) test OK trên Train_Testing. Gunner deploy Live: SP (Dev SG bản mới nhất, bỏ dòng `USE`) + RDL lên SSRS Live. Không đổi config `Sys_ReportFilter` (Live đã có ô Supplier Type dropdown từ 2025-12-08).
 
 ## Reopen 2026-11-20 — Creditor Type Closing không khớp (Train_Testing)
 

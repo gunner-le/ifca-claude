@@ -190,7 +190,7 @@
 - Bản Doc Date (SG) và bản chuẩn Malaysia đã dùng `+` → fix Malaysia chưa port sang SG. Fix: đổi 9 chỗ `-`→`+`, không đè file Malaysia. Chi tiết `docs/tickets/LKHS-337-pm-debtor-aging-sum-trxdate-owing.md`.
 
 ### LKHS-329, LKHS-271/320/325/326, LKHS-274, LKHS-290/292, LKHS-298, LKHS-322, LKHS-336, LKHS-337 — xem `docs/tickets/` và `docs/memory/ticket-status.md`.
-- **LKHS-274 changeset:** CS Dev SG: 98161 (13/09), 98590 (02/10, v10), 99689 (24/11, filter Supplier Type) · Rel SG: chưa (đúng quy trình — chưa lên Live). TFS: Dev SG `pro_AP_CreditorLedgerDetail_ByTrxDate.sql` có 121 dấu LKHS-274, Rel SG 0. Reopen 20/11/2026 (Valerie, Train_Testing restore từ Live): SP trên Train_Testing modify 03/08/2026, DefLen 77325, 26 dấu → chưa phải v10 (2026-11-24). Nguyên nhân: file deploy v10 có dòng 1 `USE [LKHS_Live_Testing]` → chạy vào Live Testing, không vào Train_Testing. Bỏ dòng USE, chọn đúng DB rồi chạy lại. 24/11: Gunner đã redeploy v10 lên Train_Testing — chờ Valerie re-test CS0147.
+- **LKHS-274 changeset:** CS Dev SG: 98161 (13/09), 98590 (02/10, v10), 99689 (24/11, filter Supplier Type) · Rel SG: 99699 (24/11, deploy Live — ĐÓNG). TFS: Dev SG `pro_AP_CreditorLedgerDetail_ByTrxDate.sql` có 121 dấu LKHS-274, Rel SG 0. Reopen 20/11/2026 (Valerie, Train_Testing restore từ Live): SP trên Train_Testing modify 03/08/2026, DefLen 77325, 26 dấu → chưa phải v10 (2026-11-24). Nguyên nhân: file deploy v10 có dòng 1 `USE [LKHS_Live_Testing]` → chạy vào Live Testing, không vào Train_Testing. Bỏ dòng USE, chọn đúng DB rồi chạy lại. 24/11: Gunner đã redeploy v10 lên Train_Testing — chờ Valerie re-test CS0147.
 
 ## HARIANPG
 
