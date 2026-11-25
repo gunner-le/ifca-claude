@@ -14,7 +14,7 @@
 | Report mục 8 (AR GIRO Status Report) | | Tách sang Jira sau (Gunner 16/11) |
 
 - **Client:** LKHS, TFS riêng → GIRO là improvement trên nhánh LKHS (không cần hậu tố `_LKHS`, sửa thẳng file chuẩn của LKHS là hợp lệ, nhưng Gunner muốn hạn chế: file chuẩn có sẵn → đưa hướng dẫn patch before/after có comment `LKHS-271 GIRO` / `LKHS-325 GIRO`; file GIRO mới → gửi nguyên file).
-- **DB:** local `LKHS_Train_Testing`; server test `LKHS_Test`; `LKHS_Train` (Train). Test data: company 195 (S36), bank 588, debtor 1812/1818/2156/613/579, SWIFT 12474.
+- **DB:** local `LKHS_Train` (Gunner 25/11; trước ghi nhầm `LKHS_Train_Testing`); server test `LKHS_Test`; `LKHS_Train` (Train). Test data: company 195 (S36), bank 588, debtor 1812/1818/2156/613/579, SWIFT 12474.
 - **Người chốt nghiệp vụ:** Stanley. Consultant: Valerie (làm việc với user/DBS).
 - **Chỉ làm DBS** (UOB/OCBC có thể sau → format file tách class riêng theo bank).
 

@@ -11,7 +11,7 @@
 | **LKHS-320** | Sub-task bước 6: **Generate GIRO Collection** (menu `Cash-03-20`, Cash Management > Receipt) + **ẩn phiếu GIRO khỏi list Collection của 4 module** + **forex gain/loss** cho GIRO | Xong, deploy LKHS_Test (changeset 99415). Ẩn list xong & test 16/11. Forex: code có cờ (xem §3) |
 | **LKHS-325** | Sub-task bước 7: **GIRO Batch** — Batch Generation (file DBS UFF), Batch Listing (Reset / Import (Reject) / Import (Success) / Close), Upload → Pre-Check → Confirm, Cancel Receipt Action (4 module), Collection Verification (cột/criteria GIRO, nút Cancel, chặn Verify) | Đang hoàn thiện (Gunner tập trung tuần này) |
 | **LKHS-326** | Jira của Stanley: Number Structure DocCode `316_ReceiptGroup` (Cash Management > Receipt Group No) | Phải deploy TRƯỚC LKHS-325 |
-| (sau) | AR GIRO Status Report (spec mục 8) | Jira riêng, chưa làm |
+| (sub-task 271, chờ JiraID) | AR GIRO Status Report (spec mục 8) — ReportNo `CBGIRO01`, Cash Management > Cashiering Report | 25/11: chạy OK trên LKHS_Train (Gunner). File ở `work\LKHS-271\`: `Views\View_CB_GIROStatusReport.sql`, `Update Script\UpdateScript_CB_GIROStatusReport.sql`, `CB_GIROStatusReport.rdl` (v4, lịch sử `_versions\log.md`). Còn: đổi comment `LKHS-271 GIRO Report` → JiraID, test Failed/Cancel/Reset/nhiều batch, ghi docs ticket |
 
 Master setup (Company Structure GIRO, Cash Book, debtor 4 module, dropdown SWIFT/Purpose) do Nurul giao ban đầu, sau Stanley làm — không thuộc phần của Gunner ("core module").
 
@@ -39,6 +39,8 @@ Master setup (Company Structure GIRO, Cash Book, debtor 4 module, dropdown SWIFT
 2. **Test lại Cancel + Confirm-with-Failed** cho 3 module ngoài Rental (OR, Construction, PS) — Rental đã test kỹ. Kịch bản: `TEST_FULL_FLOW_LKHS-271.md`.
 3. PS test cần company khác có bill PS (vd S43) + setup GIRO bank company đó (company 195 không có bill PS).
 4. Câu hỏi business còn chờ: phạm vi report (mục 8 → Jira riêng), path/FTP production chi tiết, filter GIRO status trên cây company, case file reject rỗng, vị trí Batch ID trong tên file trả về.
+6. **Danh sách thay đổi chờ làm gộp 1 lần (Gunner: tổng hợp rồi mới sửa)** — source local `E:\IFCA Software\LKHS_Train`:
+   - (25/11, Stanley chốt) **DBS Batch ID (D07) + số trong tên file UFF = `CB_ReceiptGroup.CBReceiptGroupID`** (identity, chung mọi company, pad 5 số), không còn lấy `GroupNo` → `316_ReceiptGroup` được format tự do. Sửa `GIROBatchService.cs` (~160–214): validate/build file trước (BatchID tạm) → insert `CB_ReceiptGroup` → build lại D07 + `MakeFileName` theo ID → update `Filename`; vẫn 1 transaction, lỗi rollback. `GIROUffDbs.FormatBatchID` nhận ID (>99999 → chặn). Sửa comment `GIROUffDbs.cs:37`, message D07 `GIROUffDbs.cs:217`.
 5. Fix 19/11 (đã làm): popup lỗi không hiện khi message có CR/LF (`IOException 'The device is not ready.\r\n'`) — LKHS-325 `ARGIROBatchGenerate.aspx.cs` helper `JsMessage` (bỏ CR/LF, tách `<br>`, escape); LKHS-320 `ARGIROCollectionGenerate.aspx.cs` bỏ CR/LF ở cả 2 catch. Lỗi gốc "device is not ready" = path Export không tồn tại/không có quyền trên server.
 
 ## 4. Source code ở đâu
