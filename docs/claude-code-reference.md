@@ -17,6 +17,9 @@
 | `docs/wcf-workflow-service-troubleshooting.md` | Lỗi WCF Workflow 404/405 |
 | `docs/ENV-setup-checklist.md` | Dựng môi trường / server mới |
 | `docs/memory/*.md` | Ghi nhớ tích luỹ: learnings (gotcha), architecture, framework reference, trạng thái ticket |
+| `docs/memory/claude-feedback.md` | Feedback / cách làm việc Gunner đã dạy — dùng chung Claude Code + chat, đọc mỗi ticket |
+| `docs/handoff-template.md` | Mẫu handoff chat → Claude Code (`/nhap-handoff`) |
+| `docs/claude-chat-project-instructions.md` | Project instructions chuẩn cho Project "IFCA" trên claude.ai |
 | `docs/tickets/*.md` | File chi tiết từng ticket (ticket đã đóng khác: tóm tắt trong `jira-context.md`, bản gốc ở claude.ai Project) |
 | `docs/de-xuat-sua-tan-goc.md` | Lỗi lặp lại nên sửa tận gốc + draft gửi Stanley |
 | `tools/sql-setup.md` | Cài sqlcmd, login chỉ đọc `claude_ro` |

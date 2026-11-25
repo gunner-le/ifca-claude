@@ -10,11 +10,12 @@ Hiển thị bảng hướng dẫn (KHÔNG làm gì khác, không đọc thêm f
 | `/xuat-thay-doi <JiraID>` | Lấy danh sách chỗ sửa (dòng mốc) để áp server/TFS | `/xuat-thay-doi LKHS-333` |
 | `/dong-ticket <JiraID>` | Ticket xong: cập nhật docs + note Jira Tech/Non-tech | `/dong-ticket FPARK-216` |
 | `/bao-cao-tuan` | Tóm tắt tuần (EN) để họp Stanley | |
+| `/nhap-handoff <nội dung>` | Nhập handoff từ claude.ai chat vào docs + push | `/nhap-handoff # TIMATCH-443 ...` |
 
 ## Lệnh có sẵn của Claude Code
 | Lệnh | Tác dụng |
 |---|---|
-| `/clear` | Xoá hội thoại, bắt đầu ticket mới (docs vẫn còn) |
+| `/clear` | Xoá hội thoại (CLI). Desktop app: sang ticket mới thì bấm **New** thay vì `/clear` |
 | `/compact` | Tóm gọn hội thoại dài (tiết kiệm token) |
 | `/resume` | Mở lại phiên cũ (chọn theo câu đầu có mã Jira) |
 | `/add-dir "<đường dẫn>"` | Thêm thư mục source (vd `E:\IFCA Software\SourceCode\Rel\IFCA.NET 4.0`) |
@@ -28,7 +29,12 @@ Claude không tự đọc source, không tự sửa/tạo file; code fix đưa n
 - "dò call chain từ nút Z" — Claude nói trước sẽ đọc file nào
 - "sửa file" / "gen file" / "làm file SQL" / "đóng gói zip" — Claude sửa/tạo file thật (backup `_ORIG` + `_versions\` trong `work\<JiraID>\`)
 - "quay về v2 file X" / "so v1 với v2 file X" — lấy lại / so bản backup trong `work\<JiraID>\_versions\`
-- Mỗi ticket 1 phiên: xong → `/tam-dung` (nếu dở) → `/clear`
+- Mỗi ticket 1 phiên: sang ticket khác → bấm **New** (ticket dở thì `/tam-dung` trước)
+
+## Đồng bộ với claude.ai chat
+- Bên chat xong ticket / học điều mới → bảo chat "xuất handoff" → dán vào đây: `/nhap-handoff <nội dung>` → Claude ghi docs + push → bên chat bấm sync GitHub
+- Project instructions cho chat: `docs/claude-chat-project-instructions.md`
+- Đổi máy: `/tam-dung` ticket dở + push → máy kia `git pull`
 
 ## Câu nói thường dùng
 - "làm tiếp <JiraID>" — tiếp ticket dở ở phiên mới

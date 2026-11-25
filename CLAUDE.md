@@ -21,12 +21,12 @@
 - Gunner bảo **"đọc file X"** → Grep tìm vị trí trước, chỉ Read đoạn liên quan (offset/limit, ~50–150 dòng), không đọc nguyên file dài (>300 dòng) trừ khi Gunner yêu cầu. **"dò call chain"** → nói trước sẽ đọc những file nào. **"sửa file" / "gen file"** → làm theo mục "Sửa / tạo file"; không in lại toàn bộ code vào chat (danh sách thay đổi để áp server: `/xuat-thay-doi`).
 - **Tra docs bằng Grep** (mã Jira, client, màn hình, bảng, SP) trong `docs/`, chỉ đọc mấy dòng trúng — KHÔNG đọc nguyên `jira-context.md` / `ifca-domain-reference.md` / `ticket-index.md`.
 - Vẫn tự làm không cần hỏi: Grep docs; ghi docs ticket theo quy tắc lưu tài liệu; tạo `_ORIG` / backup version trong `work\`.
-- **Mỗi ticket 1 phiên**: xong / tạm dừng (`/tam-dung`) → nhắc Gunner `/clear` trước khi sang ticket khác; phiên dài → `/compact`. Việc nhẹ (patch data, query, sửa nhỏ) → gợi ý chọn model nhẹ hơn trong app.
+- **Mỗi ticket 1 phiên** (desktop app): sang ticket khác → nhắc Gunner bấm **New** (phiên mới), KHÔNG bảo `/clear`; ticket dở thì `/tam-dung` trước; 1 phiên ticket quá dài → `/compact`. Việc nhẹ (patch data, query, sửa nhỏ) → gợi ý chọn model nhẹ hơn trong app.
 
 ## Quy tắc hành vi khi trả lời
 - **Luôn trả lời bằng tiếng Việt.** Nội dung gửi consultant/IFCA (note Jira, tin nhắn Stanley...) viết **tiếng Anh**, ngắn, không jargon. Gunner nghe/nói tiếng Anh yếu → tin nhắn cho Stanley: ngắn, chỉ hỏi, bám đúng ý Stanley vừa nêu; họp với Stanley thì chuẩn bị sẵn talking points tiếng Anh.
 - **Nhận ticket mới:** không hỏi trắc nghiệm. Tóm tắt ngắn hiểu của mình → hỏi bằng văn bản thường thông tin còn thiếu.
-- **Trước khi trả lời ticket mới:** Grep `docs/ticket-index.md`, `docs/jira-context.md`, `docs/ifca-domain-reference.md`, `docs/memory/*`, `docs/tickets/` theo mã ticket / client / màn hình / bảng — **không đoán lại** những gì đã từng xác định (từng đoán sai `AP_Trx` cho màn AP Transaction, đúng là `AP_Journal`). Đối chiếu đúng client trước khi áp finding cũ. Ticket chỉ ghi "chỉ còn tiêu đề" → nói rõ không có chi tiết, hỏi Gunner.
+- **Trước khi trả lời ticket mới:** đọc `docs/memory/claude-feedback.md` (ngắn, bắt buộc); Grep `docs/ticket-index.md`, `docs/jira-context.md`, `docs/ifca-domain-reference.md`, `docs/memory/*`, `docs/tickets/` theo mã ticket / client / màn hình / bảng — **không đoán lại** những gì đã từng xác định (từng đoán sai `AP_Trx` cho màn AP Transaction, đúng là `AP_Journal`). Đối chiếu đúng client trước khi áp finding cũ. Ticket chỉ ghi "chỉ còn tiêu đề" → nói rõ không có chi tiết, hỏi Gunner.
 - **LKHS-271 / 320 / 325 / 326 (GIRO) đang dở:** Gunner nhắc GIRO → đọc `docs/lkhs-271/00-HANDOFF-LKHS-271.md` trước, tiếp từ "Việc còn mở", không làm lại, không hỏi lại điều đã chốt.
 - **Không đoán khi chưa có dữ liệu thật.** Cần data thì đưa ngay câu SQL sẵn chạy (hoặc tự chạy SELECT nếu được phép).
 - Khi điều tra: **mỗi lượt chỉ 1 query / 1 yêu cầu** (bước kiểm tra quyết định nhất).
@@ -94,5 +94,12 @@ Nhiều bug là client chưa được deploy fix đã có trên TFS → đầu t
   - Ticket chưa có dòng index → ghi vào mục ticket trong `docs/jira-context.md`. Dùng khi revert (`tf rollback /changeset:<id>`), kiểm server đã có fix chưa, port fix sang nhánh khác.
 - Lỗi setup môi trường → `docs/ENV-setup-checklist.md`. Query mới dùng lại được → `tools/queries/` (xem README) khi đóng ticket.
 
+## Đồng bộ Claude Code ↔ claude.ai chat — repo GitHub là nguồn sự thật DUY NHẤT
+- Gunner dùng song song: chat (việc thường, máy khác/điện thoại) và Claude Code (task khó, source/DB, report, nhiều file). Lịch sử chat 2 bên KHÔNG sync — chỉ những gì nằm trong repo này mới sync.
+- **Feedback / cách làm việc Gunner dạy** → ghi vào `docs/memory/claude-feedback.md` (đọc file này mỗi khi bắt đầu ticket — bắt buộc theo), commit + push. Memory riêng của máy chỉ là bản phụ, không thay cho repo.
+- **Code → chat:** mọi docs/rule/ticket ghi vào repo + push; Project "IFCA" trên claude.ai nối GitHub repo, Gunner bấm sync. Project instructions bản chuẩn: `docs/claude-chat-project-instructions.md` (sửa rule ảnh hưởng chat → nhắc Gunner dán lại).
+- **Chat → Code:** chat xuất handoff theo `docs/handoff-template.md` → Gunner dán bằng `/nhap-handoff` → ghi docs + push.
+- Đổi máy: ticket dở → `/tam-dung` + push trước; máy kia `git pull`. `work\`, `screens\`, source client, DB clone không đi theo git.
+
 ## Lệnh tắt (`.claude/commands/`)
-`/huong-dan` · `/ticket-moi <Jira>` · `/so-tfs <file> [A|B|C]` · `/tam-dung <Jira>` · `/xuat-thay-doi <Jira>` · `/dong-ticket <Jira>` · `/bao-cao-tuan`. Screenshot: lưu vào `screens\` rồi gõ đường dẫn. `work\` và `screens\` không commit git.
+`/huong-dan` · `/ticket-moi <Jira>` · `/so-tfs <file> [A|B|C]` · `/tam-dung <Jira>` · `/xuat-thay-doi <Jira>` · `/dong-ticket <Jira>` · `/bao-cao-tuan` · `/nhap-handoff`. Screenshot: lưu vào `screens\` rồi gõ đường dẫn. `work\` và `screens\` không commit git.
