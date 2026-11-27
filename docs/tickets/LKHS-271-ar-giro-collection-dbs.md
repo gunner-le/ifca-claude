@@ -152,3 +152,11 @@ Spec v01.2: "Exclude display collection CB_Receipt.IsGiroReceipt = Y". Cách là
 - Ghi chú package: `PACKAGE_TFS_LKHS-320_325.md` (mapping script đánh số → file TFS, prerequisite, change log, rule), `PACKAGE_README_LKHS-320.txt`, `PACKAGE_README_LKHS-325.txt`, `SQL_TFS_RUN_ORDER.txt`, `PATCH_LKHS-325_ACReceiptVerify.md`, `PATCH_LKHS-320_HideGIRO.md`, `TEST_FULL_FLOW_LKHS-271.md`.
 - Zip gần nhất: `LKHS-271_TFS_LKHS-320_LKHS-325.zip` (cấu trúc `LKHS-320/` và `LKHS-325/`, mỗi cái có `Database/<folder TFS>` + `Web/App_Code` + `Web/CashFlow`). View 4 module (mục 4) do Gunner tự ALTER file view có sẵn trên TFS, không gen trong package.
 - Trong Claude Code: làm việc trực tiếp trên source LKHS ở máy (App_Code/GIROCode, CashFlow/ARGIRO*), không cần bản copy trong Project.
+
+## Changeset TFS
+| Nhánh | Changeset | Ngày | File/object | Ghi chú |
+|---|---|---|---|---|
+| `$/Property/Dev/BRANCHES/NET4.0_SG` | 99415 | 2026-11-16 | LKHS-320 (bước 6 + ẩn phiếu GIRO 4 module) | deploy LKHS_Test |
+| `$/Property/Dev/BRANCHES/NET4.0_SG` | 99795 | 2026-11-27 | `PropertyNet/App_Code/GIROCode/GIROBatchService.cs`, `PropertyNet/CashFlow/ARGIROBatchGenerate.aspx.cs`, `PropertyNet/CashFlow/ACReceiptVerify.aspx(.cs)`, `Data Definition/Update Script/LKHS-325/LKHS-325_02_Config_CB_GIROBatchList.sql`, `LKHS-325_04_Config_AC_Receipt_GIRO.sql` | LKHS-325 consultant T1: tên file UFF mới + popup đủ tên file, nhãn "GIRO Batch Reset / Import", nút Cancel mờ đúng (setAttribute), dropdown Status/Currency Batch Listing, bỏ Failed/Cancel khỏi GIRO Status, giữ SeqNo nút khi chạy lại script; **lần đầu commit patch GIRO của ACReceiptVerify.aspx(.cs)** (trước đó chỉ sửa tay server). Note: `work\LKHS-271\CHANGES_LKHS-325_2026-11-27.md` |
+| `$/Property/Dev/BRANCHES/NET4.0_SG` | 99796 | 2026-11-27 | `Data Definition/Update Script/LKHS-326/Script for Number Structure.sql` (script của Stanley) | LKHS-326: relabel Number Structure "Receipt Group No" → "AR GIRO Batch" (CF_DocCode.DocCodeName + CF_String `AutoCode316ReceiptGroup`), consultant T1. Bản gốc: `work\LKHS-326\Script for Number Structure_ORIG.sql` |
+| `$/Property/Rel/IFCA.NET 4.0_SG` | chưa | | | |
