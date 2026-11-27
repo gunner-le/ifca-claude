@@ -39,3 +39,8 @@
 ## 8. Tin nhắn soạn cho Gunner gửi: dùng "I", không "we"
 - **Rule:** tin nhắn / note tiếng Anh gửi Stanley, consultant, Jira nói với tư cách Gunner, ngôi thứ nhất số ít: "I", "I can adjust", không "we" / "our". Mô tả hệ thống trung tính ("the system ...") vẫn OK.
 - *Vì sao:* LKHS-271 trả lời Stanley (2026-11-25) dùng "We check... We can adjust" → Gunner sửa.
+
+## 9. Lỗi trên màn hình do mình viết: so DB với script config trong package TRƯỚC khi đoán
+- **Rule:** màn hình/config Claude đã giao (có script `Sys_`/CF_String trong package) mà lỗi sau khi consultant chỉnh → (1) Grep docs theo đúng phần bị lỗi (ô search = `Sys_Filter`, cột lưới = `Sys_ListDt`, field = `Sys_BaseDt`), (2) 1 query lấy config bảng đó trên DB đem so với script config gốc → ra ngay dòng bị đổi. Không dò lần lượt từng bảng, không bắt Gunner chạy nhiều query.
+- *Vì sao:* LKHS-271 GIRO Batch Listing (2026-11-27) lỗi `Invalid column name 'RecordStatusStringCode'` khi consultant đổi ô search Status sang dropdown. Claude Code dò `Sys_BaseDt` → `Sys_ListDt` → INFORMATION_SCHEMA → trace (4 lượt), trong khi docs đã ghi `Sys_Filter` = search; Claude chat so với `10_Config_CB_GIROBatchList.sql` thấy ngay `Sys_Filter` khác 2 dòng (Currency `FltType` S→L2, RecordStatus `FltDisMode` 0→1).
+- *Áp dụng:* ô search dropdown (`FltType` L2/L3 hoặc `FltDisMode`=1) → framework đọc cột `<FltName>StringCode` từ BseReadTable; view không có cột đó → lỗi khi mở trang.
