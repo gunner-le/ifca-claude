@@ -44,3 +44,8 @@
 - **Rule:** màn hình/config Claude đã giao (có script `Sys_`/CF_String trong package) mà lỗi sau khi consultant chỉnh → (1) Grep docs theo đúng phần bị lỗi (ô search = `Sys_Filter`, cột lưới = `Sys_ListDt`, field = `Sys_BaseDt`), (2) 1 query lấy config bảng đó trên DB đem so với script config gốc → ra ngay dòng bị đổi. Không dò lần lượt từng bảng, không bắt Gunner chạy nhiều query.
 - *Vì sao:* LKHS-271 GIRO Batch Listing (2026-11-27) lỗi `Invalid column name 'RecordStatusStringCode'` khi consultant đổi ô search Status sang dropdown. Claude Code dò `Sys_BaseDt` → `Sys_ListDt` → INFORMATION_SCHEMA → trace (4 lượt), trong khi docs đã ghi `Sys_Filter` = search; Claude chat so với `10_Config_CB_GIROBatchList.sql` thấy ngay `Sys_Filter` khác 2 dòng (Currency `FltType` S→L2, RecordStatus `FltDisMode` 0→1).
 - *Áp dụng:* ô search dropdown (`FltType` L2/L3 hoặc `FltDisMode`=1) → framework đọc cột `<FltName>StringCode` từ BseReadTable; view không có cột đó → lỗi khi mở trang.
+
+## 10. Sửa thẳng file TFS (`SourceCode`) khi Gunner đồng ý
+- **Rule:** mặc định `SourceCode` chỉ đọc. Gunner đồng ý sửa trên TFS → (1) nhắc **Get Latest + Check Out for Edit** đúng file, đúng nhánh (LKHS: Dev SG / Rel SG), chờ Gunner báo xong; (2) kiểm file đã hết read-only (chưa → dừng, nhắc lại); (3) backup `_ORIG` vào `work\<JiraID>\`, sửa đúng chỗ, marker JiraID, giữ encoding/line ending, diff; (4) Gunner check in.
+- *Vì sao:* LKHS-325 (2026-11-27): sửa script trong `work\` rồi Gunner phải tự copy/compare sang TFS → mất công; Gunner chốt quy trình check out trước rồi Claude sửa thẳng.
+- *Áp dụng:* code Web Site client (`E:\IFCA Software\<client>`) vẫn theo rule cũ; nếu cùng thay đổi phải có ở cả source client và TFS → hỏi Gunner sửa bên nào (hoặc cả hai).

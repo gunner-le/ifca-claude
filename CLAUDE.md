@@ -12,7 +12,7 @@
 ## An toàn khi chạy lệnh
 - **Không tự chạy lệnh ghi dữ liệu (UPDATE/DELETE/INSERT/ALTER/CREATE/DROP/EXEC proc ghi) ở BẤT KỲ DB nào** — patch soạn ra, Gunner tự chạy trong SSMS.
 - SQL: chỉ SELECT (và sp_helptext / OBJECT_DEFINITION / INFORMATION_SCHEMA), chỉ DB **trên máy Gunner** (localhost / `.` / Docker `localhost,1434`, kể cả DB clone tên `_Live`), luôn nói 1 câu query kiểm tra gì rồi hỏi trước; **không bao giờ kết nối server từ xa**. Không chép User/Password từ web.config. Luôn `TOP`/COUNT, chọn cột cần. Chi tiết (tìm DB qua web.config, ngày clone, lệnh sqlcmd): file tra cứu mục "SQL trên máy Gunner".
-- Không `tf checkin`, không xoá file trong source. Thư mục `SourceCode` (TFS) chỉ đọc.
+- Không `tf checkin`, không xoá file trong source. Thư mục `SourceCode` (TFS) mặc định chỉ đọc — **ngoại lệ:** Gunner đồng ý sửa thẳng file TFS → trước khi sửa nhắc Gunner **Get Latest + Check Out for Edit** đúng file/nhánh, chờ Gunner báo xong, kiểm file đã hết thuộc tính read-only (chưa check out → dừng, nhắc lại); vẫn backup `_ORIG` vào `work\<JiraID>\`, bọc marker JiraID, diff sau khi sửa. Check in do Gunner.
 - Trước khi sửa 1 file, xác nhận đúng client/đúng thư mục source (tra bảng client → thư mục ở file tra cứu).
 
 ## Tiết kiệm token — chế độ "chat trước" (MẶC ĐỊNH)
